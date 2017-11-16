@@ -51,7 +51,7 @@ void Player::Input()
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 	{
 		bullet->setPosition(player_pos);
-		bullet->get
+		//bullet->get
 	}
 }
 
