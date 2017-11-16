@@ -1,6 +1,9 @@
-#include "Player.h"
 #include "SFML\Graphics.hpp"
 #include "SFML\Network.hpp"
+#include "SFML\Window.hpp"
+
+#include "KeyboardHandler.h"
+#include "Player.h"
 
 Player::Player() :
 	player_shape(new sf::CircleShape), mouse(new sf::Mouse), 
@@ -11,10 +14,6 @@ Player::Player() :
 	player_shape->setFillColor(sf::Color::Red);
 	player_shape->setPosition(306, 306);
 
-	bullet = new sf::RectangleShape;
-	bullet->setSize(sf::Vector2f(2, 4));
-	bullet->setOrigin(bullet->getSize().x / 2, bullet->getSize().y / 2);
-
 	socket->bind(sf::Socket::AnyPort);
 }
 
@@ -22,40 +21,52 @@ Player::~Player()
 {
 }
 
-//Update for player
+// Update for player
 void Player::Update()
 {
 	Input();
 }
 
-//Input from player, such as movement
+void Player::Draw(sf::RenderWindow& window)
+{
+	window.draw(*player_shape);
+	for (int i = 0; i < bullets_vector.size(); i++)
+	{
+		window.draw(bullets_vector[i]->GetShape());
+	}	
+}
+
+// Input from player, such as movement
 void Player::Input()
 {
 	sf::Vector2f player_pos = player_shape->getPosition();
+	sf::Vector2f movementVector = sf::Vector2f(0, 0);
 
 	//--------------Movement input------------------.
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-		player_pos.y -= speed;
+	if (KeyboardHandler::isKeyDown(sf::Keyboard::W))
+		movementVector.y -= speed;
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-		player_pos.x -= speed;
+	if (KeyboardHandler::isKeyDown(sf::Keyboard::A))
+		movementVector.x -= speed;
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-		player_pos.y += speed;
+	if (KeyboardHandler::isKeyDown(sf::Keyboard::S))
+		movementVector.y += speed;
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-		player_pos.x += speed;
-	player_shape->setPosition(player_pos);
+	if (KeyboardHandler::isKeyDown(sf::Keyboard::D))
+		movementVector.x += speed;
 
-	//Shoot input
+	player_shape->move(movementVector);
+
+	// Shoot input
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 	{
-		bullet->setPosition(player_pos);
+		bullets_vector.push_back(new Bullet(player_shape->getPosition()));
+		// direction = muspekarens position minus bullets position och normalisera det
 		//bullet->get
 	}
 }
 
-sf::CircleShape* Player::GetShape()
+const sf::CircleShape* Player::GetShape() const
 {
 	return player_shape;
 }
