@@ -1,5 +1,8 @@
 #pragma once
 #include <vector>
+
+#include "SFML\Network\IpAddress.hpp"
+
 #include "Bullet.h"
 
 namespace sf
@@ -7,9 +10,8 @@ namespace sf
 	class CircleShape;
 	class RectangleShape;
 	class Window;
-	class Renderwindow;
+	class RenderWindow;
 	class Mouse;
-	class IpAdress;
 	class UdpSocket;
 	class Event;
 }
@@ -31,16 +33,22 @@ private:
 	void Connect();
 	void Disconnet();
 
-	void Send();
+	void Initialize();
 	void Receive();
+	void Send();
 
 	std::vector<Bullet*> bullets_vector;
 
 	sf::CircleShape* player_shape;
+	sf::CircleShape* enemy_shape;
 	sf::Mouse* mouse;
+	sf::Event player_event;
 	sf::UdpSocket* socket;
-	const sf::IpAdress* server_Adress;
+	sf::IpAddress server_Adress;
 
+	sf::Vector2f player_position;
+	sf::Vector2f enemy_position;
 	float speed;
-	const unsigned short server_port = 27015;
+	int is_pressed = 0;
+	unsigned short server_port;
 };
