@@ -30,12 +30,12 @@ void Server::Connect(ClientInfo info)
 	}
 
 	//Adds a new client to the game
-	clients.push_back(new Client(info.adress, info.port));
+	clients.push_back(new Client(info.adress, info.port, 10));
 	sf::Packet packet;
 
 	packet << "Connected";
 
-	socket->send(packet, info.adress, info.port);
+	//socket->send(packet, info.adress, info.port);
 	
 }
 
@@ -62,8 +62,8 @@ void Server::UpdateClientsPos()
 	{
 		sf::Packet packet;
 
-		packet << clients[i]->GetPos();
-		//socket->send(sf::Packet&("clie"), )
+		//packet << clients[i]->GetPos();
+		
 	}
 		
 }

@@ -9,7 +9,7 @@ namespace sf
 class Client
 {
 public:
-	Client(sf::IpAddress* adress, unsigned short port);
+	Client(sf::IpAddress* adress, unsigned short port, int health);
 	~Client();
 
 	void SetPos(sf::Vector2f pos);
@@ -20,5 +20,6 @@ private:
 
 	sf::Vector2f clientPos;
 	sf::IpAddress* ip;
+	int hp;
 };
 

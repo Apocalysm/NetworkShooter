@@ -2,8 +2,8 @@
 
 #include <SFML/Network/IpAddress.hpp>
 
-Client::Client(sf::IpAddress* address, unsigned short port) : 
-	ip(new sf::IpAddress)
+Client::Client(sf::IpAddress* address, unsigned short port, int health) :
+	ip(address), hp(health)
 {
 	
 }
