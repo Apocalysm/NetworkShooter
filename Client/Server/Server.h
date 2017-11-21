@@ -2,16 +2,12 @@
 #include <vector>
 #include <map>
 #include "SFML\System\Vector2.hpp"
-
-namespace sf
-{
-	class IpAddress;
-	class UdpSocket;
-}
+#include "SFML\Network\Packet.hpp"
+#include "SFML\Network\IpAddress.hpp"
 
 struct ClientInfo
 {
-	sf::IpAddress* adress;
+	sf::IpAddress adress;
 	unsigned short port;
 };
 
@@ -25,23 +21,21 @@ public:
 
 	void Update();
 
-	friend sf::Packet& operator <<(sf::Packet& packet, const Server& character);
+	
 	sf::Vector2f vector;
+	void InitServer();
 private:
-	void Connect(ClientInfo info);
-	void Disconnect(ClientInfo info);
+	void Connect(sf::IpAddress adress, unsigned short port);
+	void Disconnect(sf::IpAddress adress, unsigned short port);
 	void Recive();
 	void BulletHit();
-	void UpdateClientsPos();
+	void UpdateClientsPos(sf::IpAddress adress, sf::Vector2f pos);
 
 	std::vector<Client*> clients;
 	sf::UdpSocket* socket;
 
 };
 
-//Overload for paket with an vector2f
-sf::Packet& operator <<(sf::Packet& packet, const Server& server)
-{
-	return packet << server.vector.x << server.vector.y;
-	
-}
+sf::Packet& operator <<(sf::Packet& packet, const Server& character);
+sf::Packet& operator >>(sf::Packet& packet, Server& server);
+
