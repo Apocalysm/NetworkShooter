@@ -35,10 +35,10 @@ void Player::Initialize()
 
 	std::string ipAddress;
 	std::getline(std::cin, ipAddress);
-	server_Adress = ipAddress;
+	server_Adress = sf::IpAddress::getLocalAddress();
 
 	sf::Packet packet;
-	std::string command = "Connect";
+	int command = 1;
 	packet << command;
 	socket->send(packet, server_Adress, server_port);
 }
@@ -120,12 +120,16 @@ void Player::Receive()
 {
 	sf::Packet packet;
 	sf::IpAddress senderIP;
-	float enemy_positionx;
-	float enemy_positiony;
+	float enemy_positionx = 0;
+	float enemy_positiony = 0;
 	unsigned short sender_port;
 
 	socket->receive(packet, senderIP, sender_port);
-	packet >> enemy_positionx >> enemy_positiony;
+	
+	if (packet >> enemy_positionx)
+	{
+		std::cout << "HEEY";
+	}
 
 	//enemy_position = sf::Vector2f(enemy_positionx, enemy_positiony);
 
@@ -135,6 +139,7 @@ void Player::Receive()
 void Player::Send()
 {
 	sf::Packet packet;
-	packet << player_position.x << player_position.y;
+	int command = 2;
+	packet << command << player_position.x << player_position.y;
 	socket->send(packet, server_Adress, server_port);
 }
