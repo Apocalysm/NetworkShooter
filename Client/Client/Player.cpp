@@ -35,10 +35,10 @@ void Player::Initialize()
 
 	std::string ipAddress;
 	std::getline(std::cin, ipAddress);
-	server_Adress = ipAddress;
+	server_Adress = sf::IpAddress::getLocalAddress();
 
 	sf::Packet packet;
-	std::string command = "Connect";
+	int command = 1;
 	packet << command;
 	socket->send(packet, server_Adress, server_port);
 }
@@ -87,20 +87,20 @@ void Player::Input()
 	player_shape->move(movementVector);
 
 	// Shoot input
-	if (player_event.mouseButton.button == sf::Mouse::Left)
-	{
-		if (player_event.type == sf::Event::MouseButtonPressed)
-		{
-			is_pressed = 0;
-		}
-		else if (player_event.type == sf::Event::MouseButtonReleased && is_pressed == 0)
-		{
-			bullets_vector.push_back(new Bullet(player_shape->getPosition()));
-			// direction = muspekarens position minus bullets position och normalisera det
-			//bullet->get
-			is_pressed++;
-		}
-	}
+	//if (player_event.mouseButton.button == sf::Mouse::Left)
+	//{
+	//	if (player_event.type == sf::Event::MouseButtonPressed)
+	//	{
+	//		is_pressed = 0;
+	//	}
+	//	else if (player_event.type == sf::Event::MouseButtonReleased && is_pressed == 0)
+	//	{
+	//		bullets_vector.push_back(new Bullet(player_shape->getPosition()));
+	//		// direction = muspekarens position minus bullets position och normalisera det
+	//		//bullet->get
+	//		is_pressed++;
+	//	}
+	//}
 }
 
 const sf::CircleShape* Player::GetShape() const
@@ -135,6 +135,7 @@ void Player::Receive()
 void Player::Send()
 {
 	sf::Packet packet;
-	packet << player_position.x << player_position.y;
+	int command = 2;
+	packet << command << player_position.x << player_position.y;
 	socket->send(packet, server_Adress, server_port);
 }
