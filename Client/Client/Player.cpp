@@ -104,7 +104,8 @@ void Player::Input(sf::Event& rEvent)
 		if (rEvent.type == sf::Event::MouseButtonPressed && is_pressed == 1)
 		{
 			bullets_vector.push_back(new Bullet(player_position, mouse_pos));
-			is_pressed = 0;
+			is_pressed = 0; 
+			CreateBullet();
 		}
 		else if (rEvent.type == sf::Event::MouseButtonReleased && is_pressed == 0)
 		{
@@ -142,6 +143,8 @@ void Player::Receive()
 
 	if(command == UPDATEPOS)
 		packet  >> enemy_position.x >> enemy_position.y;
+
+	if(command == BULLETHIT)
 
 	if (command == SERVERFULL)
 		CloseWindow();

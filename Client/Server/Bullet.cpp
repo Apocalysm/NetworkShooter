@@ -17,3 +17,8 @@ void Bullet::Update()
 	position.x += direction.x;
 	position.y += direction.y;
 }
+
+sf::Vector2f Bullet::GetPos()
+{
+	return position;
+}

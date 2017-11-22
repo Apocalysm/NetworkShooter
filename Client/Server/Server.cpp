@@ -36,6 +36,13 @@ void Server::Update()
 		for (size_t i = 0; i < bullets.size(); i++)
 		{
 			bullets[i]->Update();
+
+			for (size_t j = 0; j < clients.size(); j++)
+			{
+				sf::Packet packet;
+				packet << BULLET << bullets[i]->GetPos();
+				socket->send(packet, clients[i]->GetIp(), clients[i]->GetPort());
+			}
 		}
 
 		Receive();

@@ -9,6 +9,7 @@ public:
 	~Bullet();
 
 	void Update();
+	sf::Vector2f GetPos();
 private:
 	sf::Vector2f position;
 	sf::Vector2f direction;
