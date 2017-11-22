@@ -25,11 +25,11 @@ public:
 	sf::Vector2f vector;
 	void InitServer();
 private:
-	void Connect(sf::IpAddress adress, unsigned short port);
-	void Disconnect(sf::IpAddress adress, unsigned short port);
+	void Connect(sf::IpAddress address, unsigned short port);
+	void Disconnect(sf::IpAddress address, unsigned short port);
 	void Recive();
 	void BulletHit();
-	void UpdateClientsPos(sf::IpAddress adress, sf::Vector2f pos);
+	void UpdateClientsPos(sf::IpAddress address, sf::Vector2f pos);
 
 	std::vector<Client*> clients;
 	sf::UdpSocket* socket;

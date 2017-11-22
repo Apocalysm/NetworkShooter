@@ -5,8 +5,10 @@
 #include "Client.h"
 
 
-Server::Server() : socket(new sf::UdpSocket)
+Server::Server() : 
+	socket(new sf::UdpSocket) 
 {
+	InitServer();
 }
 
 
@@ -17,6 +19,7 @@ Server::~Server()
 
 void Server::Update()
 {
+
 	while (true)
 	{
 		Recive();
@@ -51,24 +54,27 @@ void Server::Recive()
 	sf::Packet packet;
 	sf::Vector2f pos;
 	sf::IpAddress adress;
+	int command = 0;
 	unsigned short port;
-	std::string command;
 
 	socket->receive(packet, adress, port);
+	packet >> command >> pos.x >> pos.y;
 
 	//Check if we get an position from client
-	if (packet >> pos.x && packet >> pos.y)
+	if (command == 1)
 	{
-		packet >> pos.x >> pos.y;
-
-		UpdateClientsPos(adress, pos);
+		Connect(adress, port);
 
 		return;
 	}
 
-	if (packet >> command)
+	else if (command == 2)
 	{
-		Connect(adress, port);
+		//packet >> x >> y;
+
+		UpdateClientsPos(adress, pos);
+
+		return;
 	}
 }
 
@@ -94,8 +100,6 @@ void Server::UpdateClientsPos(sf::IpAddress adress, sf::Vector2f pos)
 
 void Server::InitServer()
 {
-	Server* server = new Server();
-
 	socket = new sf::UdpSocket();
 	socket->bind(27015);
 }
