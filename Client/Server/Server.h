@@ -1,9 +1,12 @@
 #pragma once
 #include <vector>
 #include <map>
+#include <functional>
 #include "SFML\System\Vector2.hpp"
 #include "SFML\Network\Packet.hpp"
 #include "SFML\Network\IpAddress.hpp"
+
+enum COMMAND{CONNECT = 0, UPDATEPOS = 1, DISCONNECT = 2, BULLETHIT = 3, SERVERFULL = 4};
 
 struct ClientInfo
 {
@@ -25,14 +28,15 @@ public:
 	sf::Vector2f vector;
 	void InitServer();
 private:
-	void Connect(sf::IpAddress address, unsigned short port);
-	void Disconnect(sf::IpAddress address, unsigned short port);
-	void Recive();
-	void BulletHit();
-	void UpdateClientsPos(sf::IpAddress address, unsigned short port ,sf::Vector2f pos);
+	void Connect(sf::Packet packet,ClientInfo info);
+	void Disconnect(sf::Packet packet, ClientInfo info);
+	void Receive();
+	void BulletHit(sf::Packet packet, ClientInfo info);
+	void UpdateClientsPos(sf::Packet packet, ClientInfo info);
 
 	std::vector<Client*> clients;
 	sf::UdpSocket* socket;
+	std::vector<std::function<void(sf::Packet, ClientInfo)>> functionsVector;
 
 };
 

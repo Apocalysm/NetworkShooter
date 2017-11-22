@@ -9,6 +9,12 @@
 Server::Server() : 
 	socket(new sf::UdpSocket) 
 {
+	//Putting the functions in the vector
+	functionsVector.push_back(std::bind(&Server::Connect, this,std::placeholders::_1, std::placeholders::_2));
+	functionsVector.push_back(std::bind(&Server::UpdateClientsPos, this, std::placeholders::_1, std::placeholders::_2));
+	functionsVector.push_back(std::bind(&Server::Disconnect, this, std::placeholders::_1, std::placeholders::_2));
+	functionsVector.push_back(std::bind(&Server::BulletHit, this, std::placeholders::_1, std::placeholders::_2));
+	//Creates the server
 	InitServer();
 }
 
@@ -18,84 +24,91 @@ Server::~Server()
 	delete socket;
 }
 
+//Update the server
 void Server::Update()
 {
-
 	while (true)
 	{
-		Recive();
+		Receive();
 	}
 }
 
 //Lets the client connect to the server
-void Server::Connect(sf::IpAddress adress, unsigned short port)
+void Server::Connect(sf::Packet pack, ClientInfo info)
 {
+	sf::Packet packet;
+
 	//Check if 2 clients is allready connected
 	if (clients.size() >= 2)
 	{
+		packet << SERVERFULL << "The server is full!";
+
+		socket->send(packet, info.adress, info.port);
 		return;
 	}
 
 	//Add a new client to the game
-	clients.push_back(new Client(adress, port, 10));
-	sf::Packet packet;
+	clients.push_back(new Client(info.adress, info.port, 10));
+
 
 	packet << "Connected";
 
-	socket->send(packet, adress, port);
+	socket->send(packet, info.adress, info.port);
 }
 
-void Server::Disconnect(sf::IpAddress adress, unsigned short port)
+//Disconnect from the server
+void Server::Disconnect(sf::Packet packet, ClientInfo info)
 {
-	
+	for (auto it = clients.begin(); it != clients.end();)
+	{
+		//Check if we have the right client
+		if ((*it)->GetIp() == info.adress && (*it)->GetPort() == info.port)
+		{
+			//Delete the client from the vector
+			delete (*it);
+			clients.erase(it);
+			continue;
+		}
+		it++;
+	}
 }
 
-void Server::Recive()
+//Receive from the client
+void Server::Receive()
 {
 	sf::Packet packet;
-	sf::Vector2f pos;
-	sf::IpAddress adress;
+	ClientInfo info;
 	int command = 0;
-	unsigned short port;
 
-	socket->receive(packet, adress, port);
+	//Getting the data from the Client
+	socket->receive(packet, info.adress, info.port);
+	//Getting which command
 	packet >> command;
+	//Calls the function
+	functionsVector[command](packet,info);
 
-	//Check if we get an position from client
-	if (command == 1)
-	{
-		Connect(adress, port);
-
-		return;
-	}
-
-	else if (command == 2)
-	{
-		packet >> pos.x >> pos.y;
-		std::cout << pos.x << std::endl;
-		UpdateClientsPos(adress, port, pos);
-
-		return;
-	}
 }
 
 //Check if an bullet the enemy.
-void Server::BulletHit()
+void Server::BulletHit(sf::Packet packet, ClientInfo info)
 {
 
 }
 
 //Update the players positions
-void Server::UpdateClientsPos(sf::IpAddress adress, unsigned short port, sf::Vector2f pos)
+void Server::UpdateClientsPos(sf::Packet packet, ClientInfo info)
 {
+	sf::Vector2f pos;
+	//Gets the positon
+	packet >> pos;
 	for (int i = 0; i < clients.size(); i++)
 	{
-		if (port != clients[i]->GetPort())
+		//Checking for the right client
+		if (info.port != clients[i]->GetPort() || info.adress !=clients[i]->GetIp())
 		{
 			sf::Packet packet;
-			int command = 2;
-			packet << command << pos.x << pos.y;
-			
+			packet << UPDATEPOS << pos.x << pos.y;
+			//Update the other clients position
 			socket->send(packet, clients[i]->GetIp(), clients[i]->GetPort());
 		}	
 	}		
