@@ -9,13 +9,15 @@ namespace sf
 class Bullet
 {
 public:
-	Bullet(sf::Vector2f position);
+	Bullet(sf::Vector2f& position, sf::Vector2f& mouse_pos);
 	~Bullet();
 
 	const sf::RectangleShape& GetShape() const;
+	void Move();
 
 private:
 	float speed;
 
+	sf::Vector2f dir;
 	sf::RectangleShape bullet_shape;
 };

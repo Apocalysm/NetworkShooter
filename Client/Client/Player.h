@@ -12,11 +12,8 @@ namespace sf
 	class RectangleShape;
 	class Window;
 	class RenderWindow;
-	class Mouse;
 	class UdpSocket;
-	class Event;
 }
-class bullet;
 
 class Player
 {
@@ -24,10 +21,10 @@ public:
 	Player();
 	~Player();
 		
-	void Update();
+	void Update(sf::RenderWindow& window, sf::Event& rEvent);
 	void Draw(sf::RenderWindow& window);
 
-	void Input();
+	void Input(sf::Event& rEvent);
 	const sf::CircleShape* GetShape() const;
 
 private:
@@ -42,15 +39,14 @@ private:
 
 	sf::CircleShape* player_shape;
 	sf::CircleShape* enemy_shape;
-	sf::Mouse* mouse;
-	sf::Event player_event;
+	sf::Vector2f mouse_pos; 
 	sf::UdpSocket* socket;
 	sf::IpAddress server_Adress;
 
 	sf::Vector2f player_position;
 	sf::Vector2f enemy_position;
 	float speed;
-	int is_pressed = 0;
+	int is_pressed;
 	unsigned short server_port;
 };
 
