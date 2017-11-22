@@ -13,6 +13,7 @@ public:
 	~Bullet();
 
 	const sf::RectangleShape& GetShape() const;
+	const sf::Vector2f& GetDir() const;
 	void Move();
 
 private:
