@@ -46,13 +46,22 @@ void Server::Connect(sf::Packet pack, ClientInfo info)
 		socket->send(packet, info.adress, info.port);
 		return;
 	}
-
 	//Add a new client to the game
+	
+	if (clients.size() < 1)
+	{
+		clients.push_back(new Client(info.adress, info.port, 10));
+		sf::Vector2f startPos = sf::Vector2f(150, 360);
+		packet << CONNECT << startPos;
+		socket->send(packet, info.adress, info.port);
+		return;
+	}
 	clients.push_back(new Client(info.adress, info.port, 10));
-
-	packet << "Connected";
-
+	sf::Vector2f startPos = sf::Vector2f(1130, 360);
+	packet << CONNECT << startPos;
 	socket->send(packet, info.adress, info.port);
+
+
 }
 
 //Disconnect from the server
@@ -66,7 +75,7 @@ void Server::Disconnect(sf::Packet packet, ClientInfo info)
 			//Delete the client from the vector
 			delete (*it);
 			clients.erase(it);
-			continue;
+			break;
 		}
 		it++;
 	}

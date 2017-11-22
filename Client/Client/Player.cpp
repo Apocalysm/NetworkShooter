@@ -15,14 +15,14 @@ Player::Player() :
 	player_shape->setRadius(16);
 	player_shape->setOrigin(player_shape->getRadius(), player_shape->getRadius());
 	player_shape->setFillColor(sf::Color::Blue);
-	player_shape->setPosition(306, 306);
+	//player_shape->setPosition(306, 306);
 
 	player_position = player_shape->getPosition();
 
 	enemy_shape->setRadius(16);
 	enemy_shape->setOrigin(enemy_shape->getRadius(), enemy_shape->getRadius());
 	enemy_shape->setFillColor(sf::Color::Red);
-	enemy_shape->setPosition(612, 612);
+	//enemy_shape->setPosition(612, 612);
 
 	Initialize();
 }
@@ -141,13 +141,21 @@ void Player::Receive()
 	sf::Packet packet;
 	sf::IpAddress senderIP;
 	unsigned short sender_port;
-	int command = 0;
+	int command = -1;
+
 
 	socket->receive(packet, senderIP, sender_port);
 	packet >> command;
 
 	if(command == 1)
 		packet  >> enemy_position.x >> enemy_position.y;
+	if (command == 0)
+	{
+		sf::Vector2f startPos;
+		packet >> startPos;
+		player_shape->setPosition(startPos);
+	}
+
 	if (command == 4)
 		CloseWindow();
 }
