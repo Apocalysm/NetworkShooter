@@ -2,9 +2,10 @@
 #include <iostream>
 #include "SFML\Network\UdpSocket.hpp"
 
+#include "Bullet.h"
 #include "Server.h"
 #include "Client.h"
-
+#include "SFML\System\Vector2.hpp"
 
 Server::Server() : 
 	socket(new sf::UdpSocket) 
@@ -13,7 +14,7 @@ Server::Server() :
 	functionsVector.push_back(std::bind(&Server::Connect, this,std::placeholders::_1, std::placeholders::_2));
 	functionsVector.push_back(std::bind(&Server::UpdateClientsPos, this, std::placeholders::_1, std::placeholders::_2));
 	functionsVector.push_back(std::bind(&Server::Disconnect, this, std::placeholders::_1, std::placeholders::_2));
-	functionsVector.push_back(std::bind(&Server::BulletHit, this, std::placeholders::_1, std::placeholders::_2));
+	functionsVector.push_back(std::bind(&Server::CreateBullet, this, std::placeholders::_1, std::placeholders::_2));
 	//Creates the server
 	InitServer();
 }
@@ -29,6 +30,12 @@ void Server::Update()
 {
 	while (true)
 	{
+		//Update every bullet position
+		for (size_t i = 0; i < bullets.size(); i++)
+		{
+			bullets[i]->Update();
+		}
+
 		Receive();
 	}
 }
@@ -97,9 +104,14 @@ void Server::Receive()
 
 }
 
-//Check if an bullet the enemy.
-void Server::BulletHit(sf::Packet packet, ClientInfo info)
+//Update for bulletPosition
+void Server::CreateBullet(sf::Packet packet, ClientInfo info)
 {
+	sf::Vector2f dir;
+	sf::Vector2f pos;
+	packet >> dir >> pos;
+
+	bullets.push_back(new Bullet(pos, dir));
 
 }
 
