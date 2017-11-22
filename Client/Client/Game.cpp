@@ -40,7 +40,7 @@ void Game::Update()
 
 		window->clear();
 
-		player->Update();
+		player->Update(*window, event);
 		KeyboardHandler::clearKeys();
 
 		player->Draw(*window);
