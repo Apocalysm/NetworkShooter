@@ -27,6 +27,8 @@ public:
 	void Input(sf::Event& rEvent);
 	const sf::CircleShape* GetShape() const;
 
+	void CloseWindow();
+
 private:
 	void Connect();
 	void Disconnet();

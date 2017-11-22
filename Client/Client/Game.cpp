@@ -25,16 +25,12 @@ void Game::Update()
 		{
 			if (event.type == sf::Event::Closed)
 			{
+				player->CloseWindow();
 				window->close();
 			}
 			else if (event.type == sf::Event::KeyPressed)
 			{
 				KeyboardHandler::setKeyDown(event.key.code);
-
-				if (event.key.code == sf::Keyboard::Escape)
-				{
-					window->close();
-				}
 			}
 		}
 

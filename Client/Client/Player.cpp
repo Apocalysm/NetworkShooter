@@ -119,6 +119,15 @@ const sf::CircleShape* Player::GetShape() const
 	return player_shape;
 }
 
+void Player::CloseWindow()
+{
+	sf::Packet packet;
+	int command = 2;
+	packet << command;
+
+	socket->send(packet, server_Adress, server_port);
+}
+
 void Player::Connect()
 {
 }
@@ -135,11 +144,12 @@ void Player::Receive()
 	int command = 0;
 
 	socket->receive(packet, senderIP, sender_port);
-
 	packet >> command;
 
-	if(command == 2)
+	if(command == 1)
 		packet  >> enemy_position.x >> enemy_position.y;
+	if (command == 4)
+		CloseWindow();
 }
 
 void Player::Send()
