@@ -6,6 +6,8 @@
 
 #include "Bullet.h"
 
+enum COMMAND { CONNECT = 0, UPDATEPOS = 1, DISCONNECT = 2, BULLETHIT = 3, SERVERFULL = 4 };
+
 namespace sf
 {
 	class CircleShape;
@@ -25,17 +27,16 @@ public:
 	void Draw(sf::RenderWindow& window);
 
 	void Input(sf::Event& rEvent);
-	const sf::CircleShape* GetShape() const;
-
 	void CloseWindow();
 
-private:
-	void Connect();
-	void Disconnet();
+	const sf::CircleShape* GetShape() const;
 
+private:
 	void Initialize();
 	void Receive();
 	void Send();
+
+	void CreateBullet();
 
 	std::vector<Bullet*> bullets_vector;
 

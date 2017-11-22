@@ -38,7 +38,7 @@ void Player::Initialize()
 	server_Adress = sf::IpAddress::getLocalAddress();
 
 	sf::Packet packet;
-	int command = 0;
+	int command = CONNECT;
 	packet << command;
 	socket->send(packet, server_Adress, server_port);
 }
@@ -101,39 +101,25 @@ void Player::Input(sf::Event& rEvent)
 	//------------------Shoot input----------------//
 	if (rEvent.mouseButton.button == sf::Mouse::Left)
 	{
-		if (rEvent.type == sf::Event::MouseButtonPressed)
+		if (rEvent.type == sf::Event::MouseButtonPressed && is_pressed == 1)
 		{
+			bullets_vector.push_back(new Bullet(player_position, mouse_pos));
 			is_pressed = 0;
 		}
 		else if (rEvent.type == sf::Event::MouseButtonReleased && is_pressed == 0)
 		{
-			bullets_vector.push_back(new Bullet(player_position, mouse_pos));
-			// direction = muspekarens position minus bullets position och normalisera det
-			is_pressed++;
+			is_pressed = 1;
 		}
 	}
-}
-
-const sf::CircleShape* Player::GetShape() const
-{
-	return player_shape;
 }
 
 void Player::CloseWindow()
 {
 	sf::Packet packet;
-	int command = 2;
+	int command = DISCONNECT;
 	packet << command;
 
 	socket->send(packet, server_Adress, server_port);
-}
-
-void Player::Connect()
-{
-}
-
-void Player::Disconnet()
-{
 }
 
 void Player::Receive()
@@ -141,22 +127,23 @@ void Player::Receive()
 	sf::Packet packet;
 	sf::IpAddress senderIP;
 	unsigned short sender_port;
-	int command = -1;
+	int command;
 
 
 	socket->receive(packet, senderIP, sender_port);
 	packet >> command;
 
-	if(command == 1)
-		packet  >> enemy_position.x >> enemy_position.y;
-	if (command == 0)
+	if (command == CONNECT)
 	{
 		sf::Vector2f startPos;
 		packet >> startPos;
 		player_shape->setPosition(startPos);
 	}
 
-	if (command == 4)
+	if(command == UPDATEPOS)
+		packet  >> enemy_position.x >> enemy_position.y;
+
+	if (command == SERVERFULL)
 		CloseWindow();
 }
 
@@ -167,6 +154,20 @@ void Player::Send()
 	packet << command << player_position.x << player_position.y;
 	//std::cout << player_position.x << std::endl;
 	socket->send(packet, server_Adress, server_port);
+}
+
+void Player::CreateBullet()
+{
+	sf::Packet packet;
+	int command = BULLETHIT;
+	packet << command << bullets_vector.back()->GetDir();
+
+	socket->send(packet, server_Adress, server_port);
+}
+
+const sf::CircleShape* Player::GetShape() const
+{
+	return player_shape;
 }
 
 //Overload for paket with an vector2f

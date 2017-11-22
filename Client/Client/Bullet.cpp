@@ -25,6 +25,11 @@ const sf::RectangleShape& Bullet::GetShape() const
 	return bullet_shape;
 }
 
+const sf::Vector2f & Bullet::GetDir() const
+{
+	return dir;
+}
+
 void Bullet::Move()
 {
 	bullet_shape.move(dir);
