@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+
 #include <map>
 #include <functional>
 #include "SFML\System\Vector2.hpp"
@@ -35,10 +36,12 @@ private:
 	void CreateBullet(sf::Packet packet, ClientInfo info);
 	void UpdateClientsPos(sf::Packet packet, ClientInfo info);
 
+	typedef std::pair<COMMAND, std::function<void(sf::Packet, ClientInfo)>> commandPair;
+
 	std::vector<Client*> clients;
 	std::vector<Bullet*> bullets;
 	sf::UdpSocket* socket;
-	std::vector<std::function<void(sf::Packet, ClientInfo)>> functionsVector;
+	std::map<COMMAND,std::function<void(sf::Packet, ClientInfo)>> functionsMap;
 
 };
 

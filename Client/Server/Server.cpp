@@ -7,14 +7,16 @@
 #include "Client.h"
 #include "SFML\System\Vector2.hpp"
 
+
+
 Server::Server() : 
 	socket(new sf::UdpSocket) 
 {
 	//Putting the functions in the vector
-	functionsVector.push_back(std::bind(&Server::Connect, this,std::placeholders::_1, std::placeholders::_2));
-	functionsVector.push_back(std::bind(&Server::UpdateClientsPos, this, std::placeholders::_1, std::placeholders::_2));
-	functionsVector.push_back(std::bind(&Server::Disconnect, this, std::placeholders::_1, std::placeholders::_2));
-	functionsVector.push_back(std::bind(&Server::CreateBullet, this, std::placeholders::_1, std::placeholders::_2));
+	functionsMap.insert(commandPair(CONNECT, std::bind(&Server::Connect, this, std::placeholders::_1, std::placeholders::_2)));
+	functionsMap.insert(commandPair(UPDATEPOS, std::bind(&Server::UpdateClientsPos, this, std::placeholders::_1, std::placeholders::_2)));
+	functionsMap.insert(commandPair(DISCONNECT, std::bind(&Server::Disconnect, this, std::placeholders::_1, std::placeholders::_2)));
+	functionsMap.insert(commandPair(BULLET, std::bind(&Server::CreateBullet, this, std::placeholders::_1, std::placeholders::_2)));
 	//Creates the server
 	InitServer();
 }
@@ -93,14 +95,17 @@ void Server::Receive()
 {
 	sf::Packet packet;
 	ClientInfo info;
+
 	int command = 0;
 
 	//Getting the data from the Client
 	socket->receive(packet, info.adress, info.port);
 	//Getting which command
 	packet >> command;
+	COMMAND cd = static_cast<COMMAND>(command);
+
 	//Calls the function
-	functionsVector[command](packet,info);
+	functionsMap[cd](packet, info);
 
 }
 
