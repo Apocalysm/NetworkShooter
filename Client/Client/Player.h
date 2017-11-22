@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "SFML\Network\IpAddress.hpp"
+#include "SFML\Network\Packet.hpp"
 
 #include "Bullet.h"
 
@@ -29,6 +30,8 @@ public:
 	void Input();
 	const sf::CircleShape* GetShape() const;
 
+	sf::Vector2f vector;
+
 private:
 	void Connect();
 	void Disconnet();
@@ -52,3 +55,6 @@ private:
 	int is_pressed = 0;
 	unsigned short server_port;
 };
+
+sf::Packet& operator <<(sf::Packet& packet, const Player& player);
+sf::Packet& operator >>(sf::Packet& packet, Player& player);

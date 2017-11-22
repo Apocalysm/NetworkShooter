@@ -120,22 +120,31 @@ void Player::Receive()
 {
 	sf::Packet packet;
 	sf::IpAddress senderIP;
-	float enemy_positionx;
-	float enemy_positiony;
 	unsigned short sender_port;
 
 	socket->receive(packet, senderIP, sender_port);
-	packet >> enemy_positionx >> enemy_positiony;
+	packet >> vector.x >> vector.y;
 
 	//enemy_position = sf::Vector2f(enemy_positionx, enemy_positiony);
 
-	enemy_shape->setPosition(enemy_positionx, enemy_positiony);
+	enemy_shape->setPosition(vector.x, vector.y);
 }
 
 void Player::Send()
 {
 	sf::Packet packet;
 	int command = 2;
-	packet << command << player_position.x << player_position.y;
+	packet << command << vector.x << vector.y;
 	socket->send(packet, server_Adress, server_port);
+}
+
+//Overload for paket with an vector2f
+sf::Packet& operator <<(sf::Packet& packet, const Player& player)
+{
+	return packet << player.vector.x << player.vector.y;
+}
+
+sf::Packet& operator >>(sf::Packet& packet, Player& player)
+{
+	return packet >> player.vector.x >> player.vector.y;
 }
