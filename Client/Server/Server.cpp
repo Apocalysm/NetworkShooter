@@ -50,7 +50,6 @@ void Server::Connect(sf::Packet pack, ClientInfo info)
 	//Add a new client to the game
 	clients.push_back(new Client(info.adress, info.port, 10));
 
-
 	packet << "Connected";
 
 	socket->send(packet, info.adress, info.port);
