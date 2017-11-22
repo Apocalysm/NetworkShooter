@@ -29,13 +29,13 @@ private:
 	void Disconnect(sf::IpAddress address, unsigned short port);
 	void Recive();
 	void BulletHit();
-	void UpdateClientsPos(sf::IpAddress address, sf::Vector2f pos);
+	void UpdateClientsPos(sf::IpAddress address, unsigned short port ,sf::Vector2f pos);
 
 	std::vector<Client*> clients;
 	sf::UdpSocket* socket;
 
 };
 
-sf::Packet& operator <<(sf::Packet& packet, const Server& character);
-sf::Packet& operator >>(sf::Packet& packet, Server& server);
+sf::Packet& operator <<(sf::Packet& packet, sf::Vector2f& v);
+sf::Packet& operator >>(sf::Packet& packet, sf::Vector2f& v);
 

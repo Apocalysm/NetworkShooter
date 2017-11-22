@@ -30,8 +30,6 @@ public:
 	void Input();
 	const sf::CircleShape* GetShape() const;
 
-	sf::Vector2f vector;
-
 private:
 	void Connect();
 	void Disconnet();
@@ -56,5 +54,5 @@ private:
 	unsigned short server_port;
 };
 
-sf::Packet& operator <<(sf::Packet& packet, const Player& player);
-sf::Packet& operator >>(sf::Packet& packet, Player& player);
+sf::Packet& operator <<(sf::Packet& packet, const sf::Vector2f& v);
+sf::Packet& operator >>(sf::Packet& packet, sf::Vector2f& v);

@@ -68,7 +68,6 @@ void Player::Draw(sf::RenderWindow& window)
 // Input from player, such as movement
 void Player::Input()
 {
-	sf::Vector2f player_pos = player_shape->getPosition();
 	sf::Vector2f movementVector = sf::Vector2f(0, 0);
 
 	//--------------Movement input------------------.
@@ -85,7 +84,9 @@ void Player::Input()
 		movementVector.x += speed;
 
 	player_shape->move(movementVector);
+	enemy_shape->setPosition(enemy_position);
 
+	player_position = player_shape->getPosition();
 	// Shoot input
 	//if (player_event.mouseButton.button == sf::Mouse::Left)
 	//{
@@ -121,30 +122,34 @@ void Player::Receive()
 	sf::Packet packet;
 	sf::IpAddress senderIP;
 	unsigned short sender_port;
+	int command = 0;
 
 	socket->receive(packet, senderIP, sender_port);
-	packet >> vector.x >> vector.y;
+
+	packet >> command;
+
+	if(command == 2)
+		packet  >> enemy_position.x >> enemy_position.y;
 
 	//enemy_position = sf::Vector2f(enemy_positionx, enemy_positiony);
-
-	enemy_shape->setPosition(vector.x, vector.y);
 }
 
 void Player::Send()
 {
 	sf::Packet packet;
 	int command = 2;
-	packet << command << vector.x << vector.y;
+	packet << command << player_position.x << player_position.y;
+	std::cout << player_position.x << std::endl;
 	socket->send(packet, server_Adress, server_port);
 }
 
 //Overload for paket with an vector2f
-sf::Packet& operator <<(sf::Packet& packet, const Player& player)
+sf::Packet& operator <<(sf::Packet& packet, const sf::Vector2f& v)
 {
-	return packet << player.vector.x << player.vector.y;
+	return packet << v.x << v.y;
 }
 
-sf::Packet& operator >>(sf::Packet& packet, Player& player)
+sf::Packet& operator >>(sf::Packet& packet, sf::Vector2f& v)
 {
-	return packet >> player.vector.x >> player.vector.y;
+	return packet >> v.x >> v.y;
 }

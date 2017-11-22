@@ -1,4 +1,5 @@
 #include <string>
+#include <iostream>
 #include "SFML\Network\UdpSocket.hpp"
 
 #include "Server.h"
@@ -58,7 +59,7 @@ void Server::Recive()
 	unsigned short port;
 
 	socket->receive(packet, adress, port);
-	packet >> command >> pos.x >> pos.y;
+	packet >> command;
 
 	//Check if we get an position from client
 	if (command == 1)
@@ -70,9 +71,9 @@ void Server::Recive()
 
 	else if (command == 2)
 	{
-		//packet >> x >> y;
-
-		UpdateClientsPos(adress, pos);
+		packet >> pos.x >> pos.y;
+		std::cout << pos.x << std::endl;
+		UpdateClientsPos(adress, port, pos);
 
 		return;
 	}
@@ -85,14 +86,16 @@ void Server::BulletHit()
 }
 
 //Update the players positions
-void Server::UpdateClientsPos(sf::IpAddress adress, sf::Vector2f pos)
+void Server::UpdateClientsPos(sf::IpAddress adress, unsigned short port, sf::Vector2f pos)
 {
 	for (int i = 0; i < clients.size(); i++)
 	{
-		if (adress != clients[i]->GetIp())
+		if (port != clients[i]->GetPort())
 		{
 			sf::Packet packet;
-			packet >> pos.x >> pos.y;
+			int command = 2;
+			packet << command << pos.x << pos.y;
+			
 			socket->send(packet, clients[i]->GetIp(), clients[i]->GetPort());
 		}	
 	}		
@@ -105,12 +108,12 @@ void Server::InitServer()
 }
 
 //Overload for paket with an vector2f
-sf::Packet& operator <<(sf::Packet& packet, const Server& server)
+sf::Packet& operator <<(sf::Packet& packet, sf::Vector2f& v)
 {
-	return packet << server.vector.x << server.vector.y;
+	return packet << v.x << v.y;
 }
 
-sf::Packet& operator >>(sf::Packet& packet, Server& server)
+sf::Packet& operator >>(sf::Packet& packet, sf::Vector2f& v)
 {
-	return packet >> server.vector.x >> server.vector.y;
+	return packet >> v.x >> v.y;
 }

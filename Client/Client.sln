@@ -7,6 +7,19 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "Client\Client.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Server\Server.vcxproj", "{4237C05E-A9FA-4729-94A2-E959996E49C3}"
 EndProject
+Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "Client-debug", "Debug\Client-debug.exe", "{65BF4163-D15B-45A1-9677-5FAB898DC54F}"
+	ProjectSection(DebuggerProjectSystem) = preProject
+		PortSupplier = 00000000-0000-0000-0000-000000000000
+		Executable = D:\VisualStudioProjects\NetworkShooter\Client\Debug\Client-debug.exe
+		RemoteMachine = 3SE-SPEL-70
+		StartingDirectory = D:\VisualStudioProjects\NetworkShooter\Client\Debug
+		Environment = Default
+		LaunchingEngine = 00000000-0000-0000-0000-000000000000
+		UseLegacyDebugEngines = No
+		LaunchSQLEngine = No
+		AttachLaunchAction = No
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +44,10 @@ Global
 		{4237C05E-A9FA-4729-94A2-E959996E49C3}.Release|x64.Build.0 = Release|x64
 		{4237C05E-A9FA-4729-94A2-E959996E49C3}.Release|x86.ActiveCfg = Release|Win32
 		{4237C05E-A9FA-4729-94A2-E959996E49C3}.Release|x86.Build.0 = Release|Win32
+		{65BF4163-D15B-45A1-9677-5FAB898DC54F}.Debug|x64.ActiveCfg = Release|x86
+		{65BF4163-D15B-45A1-9677-5FAB898DC54F}.Debug|x86.ActiveCfg = Release|x86
+		{65BF4163-D15B-45A1-9677-5FAB898DC54F}.Release|x64.ActiveCfg = Release|x86
+		{65BF4163-D15B-45A1-9677-5FAB898DC54F}.Release|x86.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
