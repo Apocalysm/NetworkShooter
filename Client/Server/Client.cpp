@@ -13,6 +13,10 @@ Client::~Client()
 {
 }
 
+void Client::Update()
+{
+}
+
 void Client::SetPos(sf::Vector2f pos)
 {
 	m_clientPos = pos;

@@ -10,7 +10,9 @@ public:
 
 	void Update();
 	sf::Vector2f GetPos();
+	bool GetDestroy();
 private:
+	bool destroy;
 	sf::Vector2f position;
 	sf::Vector2f direction;
 

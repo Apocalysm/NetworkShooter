@@ -6,7 +6,7 @@
 
 #include "Bullet.h"
 
-enum COMMAND { CONNECT = 0, UPDATEPOS = 1, DISCONNECT = 2, BULLETHIT = 3, SERVERFULL = 4 };
+enum COMMAND { CONNECT = 0, UPDATEPOS = 1, DISCONNECT = 2, BULLETHIT = 3, SERVERFULL = 4 , BULLETPOS = 5};
 
 namespace sf
 {

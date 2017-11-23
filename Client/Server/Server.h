@@ -8,7 +8,7 @@
 #include "SFML\Network\IpAddress.hpp"
 #include "SFML\Graphics\CircleShape.hpp"
 
-enum COMMAND{CONNECT = 0, UPDATEPOS = 1, DISCONNECT = 2, BULLET = 3, SERVERFULL = 4};
+enum COMMAND{CONNECT = 0, UPDATEPOS = 1, DISCONNECT = 2, BULLET = 3, SERVERFULL = 4, BULLETPOS = 5, WIN = 6, LOSE = 7};
 
 struct ClientInfo
 {

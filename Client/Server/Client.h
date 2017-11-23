@@ -10,6 +10,8 @@ public:
 	Client(sf::IpAddress adress, unsigned short port, int health);
 	~Client();
 
+	void Update();
+
 	void SetPos(sf::Vector2f pos);
 	sf::Vector2f GetPos();
 	void GetSpeed();

@@ -62,7 +62,7 @@ void Player::Update(sf::RenderWindow& window, sf::Event& rEvent)
 		}
 	}
 
-	Send();
+	//Send();
 }
 
 void Player::Draw(sf::RenderWindow& window)
@@ -82,16 +82,27 @@ void Player::Input(sf::Event& rEvent)
 
 	//--------------Movement input----------------//
 	if (KeyboardHandler::isKeyDown(sf::Keyboard::W))
+	{
+		Send();
 		movementVector.y -= speed;
-
+	}
 	if (KeyboardHandler::isKeyDown(sf::Keyboard::A))
+	{
+		Send();
 		movementVector.x -= speed;
+	}
 
 	if (KeyboardHandler::isKeyDown(sf::Keyboard::S))
+	{
+		Send();
 		movementVector.y += speed;
+	}
 
 	if (KeyboardHandler::isKeyDown(sf::Keyboard::D))
+	{
+		Send();
 		movementVector.x += speed;
+	}
 
 	player_shape->move(movementVector);
 	enemy_shape->setPosition(enemy_position);
@@ -103,7 +114,6 @@ void Player::Input(sf::Event& rEvent)
 	{
 		if (rEvent.type == sf::Event::MouseButtonPressed && is_pressed == 1)
 		{
-			bullets_vector.push_back(new Bullet(player_position, mouse_pos));
 			is_pressed = 0; 
 			CreateBullet();
 		}
@@ -144,7 +154,13 @@ void Player::Receive()
 	if(command == UPDATEPOS)
 		packet  >> enemy_position.x >> enemy_position.y;
 
-	if(command == BULLETHIT)
+	if (command == BULLETHIT)
+	{
+		sf::Vector2f pos;
+		sf::Vector2f mousepos;
+		packet >> mousepos >> pos;
+		bullets_vector.push_back(new Bullet(pos, mousepos));
+	}
 
 	if (command == SERVERFULL)
 		CloseWindow();
@@ -163,7 +179,7 @@ void Player::CreateBullet()
 {
 	sf::Packet packet;
 	int command = BULLETHIT;
-	packet << command << bullets_vector.back()->GetDir();
+	packet << command << mouse_pos << player_shape->getPosition();
 
 	socket->send(packet, server_Adress, server_port);
 }

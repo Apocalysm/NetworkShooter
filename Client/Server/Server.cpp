@@ -32,19 +32,29 @@ void Server::Update()
 {
 	while (true)
 	{
+		for (auto it = bullets.begin(); it != bullets.end();)
+		{
+			if ((*it)->GetDestroy() == true)
+			{
+				delete(*it);
+				bullets.erase(it);
+			}
+			it++;
+		}
+
 		//Update every bullet position
-		for (size_t i = 0; i < bullets.size(); i++)
+		/*for (size_t i = 0; i < bullets.size(); i++)
 		{
 			bullets[i]->Update();
 
 			for (size_t j = 0; j < clients.size(); j++)
 			{
 				sf::Packet packet;
-				packet << BULLET << bullets[i]->GetPos();
-				socket->send(packet, clients[i]->GetIp(), clients[i]->GetPort());
+				packet << BULLETPOS << bullets[i]->GetPos();
+				socket->send(packet, clients[j]->GetIp(), clients[j]->GetPort());
 			}
-		}
-
+		}*/
+		
 		Receive();
 	}
 }
@@ -119,12 +129,14 @@ void Server::Receive()
 //Update for bulletPosition
 void Server::CreateBullet(sf::Packet packet, ClientInfo info)
 {
-	sf::Vector2f dir;
+	sf::Vector2f mousepos;
 	sf::Vector2f pos;
-	packet >> dir >> pos;
+	packet >> mousepos >> pos;
+	bullets.push_back(new Bullet(pos, mousepos));
 
-	bullets.push_back(new Bullet(pos, dir));
-
+	packet << BULLET << mousepos << pos;
+	for (size_t i = 0; i < clients.size(); i++)
+		socket->send(packet, clients[i]->GetIp(), clients[i]->GetPort());
 }
 
 //Update the players positions
@@ -142,6 +154,7 @@ void Server::UpdateClientsPos(sf::Packet packet, ClientInfo info)
 			packet << UPDATEPOS << pos.x << pos.y;
 			//Update the other clients position
 			socket->send(packet, clients[i]->GetIp(), clients[i]->GetPort());
+			break;
 		}	
 	}		
 }
