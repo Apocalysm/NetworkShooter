@@ -61,7 +61,7 @@ private:
 	sf::Font m_font;
 
 	float m_speed;
-	int m_pressed;
+	bool m_pressed;
 	unsigned short m_server_port;
 	int m_id;
 	bool m_game_over;

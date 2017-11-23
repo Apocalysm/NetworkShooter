@@ -10,7 +10,7 @@
 
 Player::Player() :
 	m_player_shape(new sf::CircleShape), m_enemy_shape(new sf::CircleShape),
-	m_socket(new sf::UdpSocket), m_speed(0.03), m_server_port(27015), m_pressed(1),
+	m_socket(new sf::UdpSocket), m_speed(0.03), m_server_port(27015), m_pressed(false),
 	m_game_over(false)
 {
 	m_player_shape->setRadius(16);
@@ -25,7 +25,7 @@ Player::Player() :
 	m_enemy_shape->setFillColor(sf::Color::Red);
 	m_enemy_shape->setPosition(612, 612);
 
-	if (!m_font.loadFromFile("Sketch 3D.otf"))
+	if (!m_font.loadFromFile("Sketch_3D.otf"))
 	{
 
 	}
@@ -91,6 +91,7 @@ void Player::Draw(sf::RenderWindow& window)
 void Player::Input(sf::Event& rEvent)
 {
 	sf::Vector2f movementVector = sf::Vector2f(0, 0);
+	float radius = m_player_shape->getRadius();
 
 	//--------------Movement input----------------//
 	if (KeyboardHandler::isKeyDown(sf::Keyboard::W))
@@ -115,8 +116,13 @@ void Player::Input(sf::Event& rEvent)
 		Send();
 		movementVector.x += m_speed;
 	}
-
+	
 	m_player_shape->move(movementVector);
+	if (m_player_shape->getPosition().x - radius <= 0 || m_player_shape->getPosition().x + radius >= 1280 ||
+		m_player_shape->getPosition().y - radius <= 0 || m_player_shape->getPosition().y + radius >= 720)
+	{
+		m_player_shape->move(-movementVector);
+	}
 	m_enemy_shape->setPosition(m_enemy_position);
 
 	m_player_position = m_player_shape->getPosition();
@@ -124,14 +130,14 @@ void Player::Input(sf::Event& rEvent)
 	//------------------Shoot input----------------//
 	if (rEvent.mouseButton.button == sf::Mouse::Left)
 	{
-		if (rEvent.type == sf::Event::MouseButtonPressed && m_pressed == 1)
+		if (rEvent.type == sf::Event::MouseButtonPressed && m_pressed == false)
 		{
-			m_pressed = 0; 
+			m_pressed = true; 
 			CreateBullet();
 		}
-		else if (rEvent.type == sf::Event::MouseButtonReleased && m_pressed == 0)
+		else if (rEvent.type == sf::Event::MouseButtonReleased && m_pressed == true)
 		{
-			m_pressed = 1;
+			m_pressed = false;
 		}
 	}
 }
@@ -151,7 +157,6 @@ void Player::Receive()
 	sf::IpAddress senderIP;
 	unsigned short sender_port;
 	int command;
-
 
 	m_socket->receive(packet, senderIP, sender_port);
 	packet >> command;
