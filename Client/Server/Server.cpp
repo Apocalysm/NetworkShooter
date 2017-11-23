@@ -73,18 +73,23 @@ void Server::Connect(sf::Packet pack, ClientInfo info)
 		return;
 	}
 	//Add a new client to the game
-	
+	int id;
+
 	if (m_clients_vector.size() < 1)
 	{
-		m_clients_vector.push_back(new Client(info.adress, info.port, 1));
+		id = 1;
+		m_clients_vector.push_back(new Client(info.adress, info.port, id));
 		sf::Vector2f startPos = sf::Vector2f(150, 360);
-		packet << CONNECT << startPos;
+		packet << CONNECT << startPos << id;
 		m_socket->send(packet, info.adress, info.port);
 		return;
 	}
-	m_clients_vector.push_back(new Client(info.adress, info.port, 2));
+
+	id = 2;
+
+	m_clients_vector.push_back(new Client(info.adress, info.port, id));
 	sf::Vector2f startPos = sf::Vector2f(1130, 360);
-	packet << CONNECT << startPos;
+	packet << CONNECT << startPos << id;
 	m_socket->send(packet, info.adress, info.port);
 
 
@@ -131,10 +136,10 @@ void Server::CreateBullet(sf::Packet packet, ClientInfo info)
 {
 	sf::Vector2f mousepos;
 	sf::Vector2f pos;
-	packet >> mousepos >> pos;
+	packet >> info.id >> mousepos >> pos;
 	m_bullets_vector.push_back(new Bullet(pos, mousepos));
 
-	packet << BULLET << mousepos << pos;
+	packet << BULLET << info.id << mousepos << pos ;
 	for (size_t i = 0; i < m_clients_vector.size(); i++)
 		m_socket->send(packet, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
 }
