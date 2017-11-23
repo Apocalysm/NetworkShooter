@@ -16,11 +16,15 @@ public:
 	const sf::Vector2f& GetDir() const;
 	const int Getid() const;
 
+	const bool GetDestroy();
+	void SetDestroy(bool);
 	void Move();
 
 private:
 	float m_speed;
 	int m_ownerid;
+
+	bool m_destroy;
 
 	sf::Vector2f m_dir;
 	sf::RectangleShape m_bullet_shape;

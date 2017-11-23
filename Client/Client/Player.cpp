@@ -11,19 +11,15 @@
 Player::Player() :
 	m_player_shape(new sf::CircleShape), m_enemy_shape(new sf::CircleShape),
 	m_socket(new sf::UdpSocket), m_speed(0.03), m_server_port(27015), m_pressed(false),
-	m_game_over(false)
+	m_game_over(false), m_dead(false), m_won(false)
 {
 	m_player_shape->setRadius(16);
 	m_player_shape->setOrigin(m_player_shape->getRadius(), m_player_shape->getRadius());
 	m_player_shape->setFillColor(sf::Color::Blue);
-	m_player_shape->setPosition(306, 306);
-
-	m_player_position = m_player_shape->getPosition();
 
 	m_enemy_shape->setRadius(16);
 	m_enemy_shape->setOrigin(m_enemy_shape->getRadius(), m_enemy_shape->getRadius());
 	m_enemy_shape->setFillColor(sf::Color::Red);
-	m_enemy_shape->setPosition(612, 612);
 
 	if (!m_font.loadFromFile("Sketch_3D.otf"))
 	{
@@ -72,13 +68,28 @@ void Player::Update(sf::RenderWindow& window, sf::Event& rEvent)
 		CheckBulletCollision();
 	}
 
+	for (auto it = m_bullets_vector.begin(); it != m_bullets_vector.end();)
+	{
+		//Delete the bullet if its outeside the game.
+		if ((*it)->GetDestroy() == true)
+		{
+			delete(*it);
+			it = m_bullets_vector.erase(it);
+			continue;
+		}
+		it++;
+	}
+
+
 	//Send();
 }
 
 void Player::Draw(sf::RenderWindow& window)
 {
-	window.draw(*m_player_shape);
-	window.draw(*m_enemy_shape);
+	if (m_dead != true)
+		window.draw(*m_player_shape);
+	if(!m_won)
+		window.draw(*m_enemy_shape);
 	for (int i = 0; i < m_bullets_vector.size(); i++)
 	{
 		window.draw(m_bullets_vector[i]->GetShape());
@@ -92,54 +103,57 @@ void Player::Input(sf::Event& rEvent)
 {
 	sf::Vector2f movementVector = sf::Vector2f(0, 0);
 	float radius = m_player_shape->getRadius();
+	if (!m_dead)
+	{
+		//--------------Movement input----------------//
+		if (KeyboardHandler::isKeyDown(sf::Keyboard::W))
+		{
+			Send();
+			movementVector.y -= m_speed;
+		}
+		if (KeyboardHandler::isKeyDown(sf::Keyboard::A))
+		{
+			Send();
+			movementVector.x -= m_speed;
+		}
 
-	//--------------Movement input----------------//
-	if (KeyboardHandler::isKeyDown(sf::Keyboard::W))
-	{
-		Send();
-		movementVector.y -= m_speed;
-	}
-	if (KeyboardHandler::isKeyDown(sf::Keyboard::A))
-	{
-		Send();
-		movementVector.x -= m_speed;
+		if (KeyboardHandler::isKeyDown(sf::Keyboard::S))
+		{
+			Send();
+			movementVector.y += m_speed;
+		}
+
+		if (KeyboardHandler::isKeyDown(sf::Keyboard::D))
+		{
+			Send();
+			movementVector.x += m_speed;
+		}
+
+		m_player_shape->move(movementVector);
+		if (m_player_shape->getPosition().x - radius <= 0 || m_player_shape->getPosition().x + radius >= 1280 ||
+			m_player_shape->getPosition().y - radius <= 0 || m_player_shape->getPosition().y + radius >= 720)
+		{
+			m_player_shape->move(-movementVector);
+		}
+
+		m_player_position = m_player_shape->getPosition();
+
+		//------------------Shoot input----------------//
+		if (rEvent.mouseButton.button == sf::Mouse::Left)
+		{
+			if (rEvent.type == sf::Event::MouseButtonPressed && m_pressed == false)
+			{
+				m_pressed = true;
+				CreateBullet();
+			}
+			else if (rEvent.type == sf::Event::MouseButtonReleased && m_pressed == true)
+			{
+				m_pressed = false;
+			}
+		}
 	}
 
-	if (KeyboardHandler::isKeyDown(sf::Keyboard::S))
-	{
-		Send();
-		movementVector.y += m_speed;
-	}
-
-	if (KeyboardHandler::isKeyDown(sf::Keyboard::D))
-	{
-		Send();
-		movementVector.x += m_speed;
-	}
-	
-	m_player_shape->move(movementVector);
-	if (m_player_shape->getPosition().x - radius <= 0 || m_player_shape->getPosition().x + radius >= 1280 ||
-		m_player_shape->getPosition().y - radius <= 0 || m_player_shape->getPosition().y + radius >= 720)
-	{
-		m_player_shape->move(-movementVector);
-	}
 	m_enemy_shape->setPosition(m_enemy_position);
-
-	m_player_position = m_player_shape->getPosition();
-	
-	//------------------Shoot input----------------//
-	if (rEvent.mouseButton.button == sf::Mouse::Left)
-	{
-		if (rEvent.type == sf::Event::MouseButtonPressed && m_pressed == false)
-		{
-			m_pressed = true; 
-			CreateBullet();
-		}
-		else if (rEvent.type == sf::Event::MouseButtonReleased && m_pressed == true)
-		{
-			m_pressed = false;
-		}
-	}
 }
 
 void Player::CloseWindow()
@@ -163,8 +177,9 @@ void Player::Receive()
 
 	if (command == CONNECT)
 	{
-		sf::Vector2f startPos;
 		packet >> m_player_position >> m_enemy_position >> m_id;
+		m_player_shape->setPosition(m_player_position);
+		m_enemy_shape->setPosition(m_enemy_position);
 		std::cout << m_id;
 	}
 
@@ -187,11 +202,13 @@ void Player::Receive()
 	{
 		m_text.setString("YOU WIN!!");
 		m_game_over = true;
+		m_won = true;
 	}
 	if (command == LOSE)
 	{
 		m_text.setString("YOU LOSE!!");
 		m_game_over = true;
+		m_dead = true;
 	}
 }
 
@@ -221,6 +238,8 @@ void Player::CheckBulletCollision()
 		{
 			if (m_id != m_bullets_vector[i]->Getid())
 			{
+				m_bullets_vector[i]->SetDestroy(true);
+
 				std::cout << "Hit by bullet" << std::endl;
 				sf::Packet packet;
 				int command = BULLETHIT;

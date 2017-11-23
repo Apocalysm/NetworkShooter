@@ -3,7 +3,7 @@
 #include "Bullet.h"
 
 Bullet::Bullet(sf::Vector2f& position, sf::Vector2f& mouse_pos, int owner_id) :
-	m_speed(0.3), m_ownerid(owner_id)
+	m_speed(0.3), m_ownerid(owner_id), m_destroy(false)
 {
 	m_bullet_shape.setSize(sf::Vector2f(2.0, 4.0));
 	m_bullet_shape.setFillColor(sf::Color::White);
@@ -18,6 +18,7 @@ Bullet::Bullet(sf::Vector2f& position, sf::Vector2f& mouse_pos, int owner_id) :
 
 Bullet::~Bullet()
 {
+
 }
 
 const sf::RectangleShape& Bullet::GetShape() const
@@ -33,6 +34,16 @@ const sf::Vector2f & Bullet::GetDir() const
 const int Bullet::Getid() const
 {
 	return m_ownerid;
+}
+
+const bool Bullet::GetDestroy()
+{
+	return m_destroy;
+}
+
+void Bullet::SetDestroy(bool des)
+{
+	m_destroy = des;
 }
 
 void Bullet::Move()

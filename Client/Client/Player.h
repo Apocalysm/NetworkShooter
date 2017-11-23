@@ -65,6 +65,8 @@ private:
 	unsigned short m_server_port;
 	int m_id;
 	bool m_game_over;
+	bool m_dead;
+	bool m_won;
 };
 
 sf::Packet& operator <<(sf::Packet& packet, const sf::Vector2f& v);
