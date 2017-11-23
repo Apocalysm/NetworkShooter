@@ -8,7 +8,7 @@
 Game::Game() :
 	m_window(new sf::RenderWindow), m_player(new Player)
 {
-	m_window->create(sf::VideoMode(1280, 720), "Shooter: Multiplayer");
+	m_window->create(sf::VideoMode(1280, 720), "Shooter: Multiplayer", sf::Style::Titlebar | sf::Style::Close);
 	KeyboardHandler::Initialize();
 }
 
