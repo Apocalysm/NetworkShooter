@@ -55,7 +55,7 @@ void Server::Update()
 			if ((*it)->GetDestroy() == true)
 			{
 				delete(*it);
-				m_bullets_vector.erase(it);
+				it = m_bullets_vector.erase(it);
 				continue;
 			}
 			it++;

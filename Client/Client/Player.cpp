@@ -164,9 +164,7 @@ void Player::Receive()
 	if (command == CONNECT)
 	{
 		sf::Vector2f startPos;
-		packet >> startPos >> m_id;
-		m_player_shape->setPosition(startPos);
-
+		packet >> m_player_position >> m_enemy_position >> m_id;
 		std::cout << m_id;
 	}
 
