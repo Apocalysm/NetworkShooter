@@ -58,6 +58,7 @@ private:
 	float m_speed;
 	int m_pressed;
 	unsigned short m_server_port;
+	int id;
 };
 
 sf::Packet& operator <<(sf::Packet& packet, const sf::Vector2f& v);

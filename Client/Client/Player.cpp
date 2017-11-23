@@ -147,8 +147,11 @@ void Player::Receive()
 	if (command == CONNECT)
 	{
 		sf::Vector2f startPos;
-		packet >> startPos;
+		packet >> startPos >> id;
 		m_player_shape->setPosition(startPos);
+
+		std::cout << id;
+
 	}
 
 	if(command == UPDATEPOS)
@@ -158,8 +161,9 @@ void Player::Receive()
 	{
 		sf::Vector2f pos;
 		sf::Vector2f mousepos;
-		packet >> mousepos >> pos;
-		m_bullets_vector.push_back(new Bullet(pos, mousepos));
+		int owner_id;
+		packet >> owner_id >> mousepos >> pos;
+		m_bullets_vector.push_back(new Bullet(pos, mousepos, owner_id));
 	}
 
 	if (command == SERVERFULL)
@@ -179,7 +183,7 @@ void Player::CreateBullet()
 {
 	sf::Packet packet;
 	int command = BULLETHIT;
-	packet << command << m_mouse_position << m_player_shape->getPosition();
+	packet << command << id << m_mouse_position << m_player_shape->getPosition() ;
 
 	m_socket->send(packet, m_server_address, m_server_port);
 }

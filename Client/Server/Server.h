@@ -14,6 +14,7 @@ struct ClientInfo
 {
 	sf::IpAddress adress;
 	unsigned short port;
+	int id;
 };
 
 class Client;

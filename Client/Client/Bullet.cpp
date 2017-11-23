@@ -2,8 +2,8 @@
 
 #include "Bullet.h"
 
-Bullet::Bullet(sf::Vector2f& position, sf::Vector2f& mouse_pos) :
-	m_speed(0.3)
+Bullet::Bullet(sf::Vector2f& position, sf::Vector2f& mouse_pos, int owner_id) :
+	m_speed(0.3), m_ownerid(owner_id)
 {
 	m_bullet_shape.setSize(sf::Vector2f(2.0, 4.0));
 	m_bullet_shape.setFillColor(sf::Color::White);
@@ -28,6 +28,11 @@ const sf::RectangleShape& Bullet::GetShape() const
 const sf::Vector2f & Bullet::GetDir() const
 {
 	return m_dir;
+}
+
+const int Bullet::Getid() const
+{
+	return m_ownerid;
 }
 
 void Bullet::Move()
