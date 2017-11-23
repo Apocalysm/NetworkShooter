@@ -10,7 +10,7 @@
 
 
 Server::Server() : 
-	socket(new sf::UdpSocket) 
+	m_socket(new sf::UdpSocket) 
 {
 	//Putting the functions in the vector
 	functionsMap.insert(commandPair(CONNECT, std::bind(&Server::Connect, this, std::placeholders::_1, std::placeholders::_2)));
@@ -24,7 +24,7 @@ Server::Server() :
 
 Server::~Server()
 {
-	delete socket;
+	delete m_socket;
 }
 
 //Update the server
@@ -51,7 +51,7 @@ void Server::Update()
 			{
 				sf::Packet packet;
 				packet << BULLETPOS << bullets[i]->GetPos();
-				socket->send(packet, clients[j]->GetIp(), clients[j]->GetPort());
+				m_socket->send(packet, clients[j]->GetIp(), clients[j]->GetPort());
 			}
 		}*/
 		
@@ -69,23 +69,23 @@ void Server::Connect(sf::Packet pack, ClientInfo info)
 	{
 		packet << SERVERFULL << "The server is full!";
 
-		socket->send(packet, info.adress, info.port);
+		m_socket->send(packet, info.adress, info.port);
 		return;
 	}
 	//Add a new client to the game
 	
 	if (clients.size() < 1)
 	{
-		clients.push_back(new Client(info.adress, info.port, 10));
+		clients.push_back(new Client(info.adress, info.port, 1));
 		sf::Vector2f startPos = sf::Vector2f(150, 360);
 		packet << CONNECT << startPos;
-		socket->send(packet, info.adress, info.port);
+		m_socket->send(packet, info.adress, info.port);
 		return;
 	}
-	clients.push_back(new Client(info.adress, info.port, 10));
+	clients.push_back(new Client(info.adress, info.port, 2));
 	sf::Vector2f startPos = sf::Vector2f(1130, 360);
 	packet << CONNECT << startPos;
-	socket->send(packet, info.adress, info.port);
+	m_socket->send(packet, info.adress, info.port);
 
 
 }
@@ -116,7 +116,7 @@ void Server::Receive()
 	int command = 0;
 
 	//Getting the data from the Client
-	socket->receive(packet, info.adress, info.port);
+	m_socket->receive(packet, info.adress, info.port);
 	//Getting which command
 	packet >> command;
 	COMMAND cd = static_cast<COMMAND>(command);
@@ -136,7 +136,7 @@ void Server::CreateBullet(sf::Packet packet, ClientInfo info)
 
 	packet << BULLET << mousepos << pos;
 	for (size_t i = 0; i < clients.size(); i++)
-		socket->send(packet, clients[i]->GetIp(), clients[i]->GetPort());
+		m_socket->send(packet, clients[i]->GetIp(), clients[i]->GetPort());
 }
 
 //Update the players positions
@@ -153,7 +153,7 @@ void Server::UpdateClientsPos(sf::Packet packet, ClientInfo info)
 			sf::Packet packet;
 			packet << UPDATEPOS << pos.x << pos.y;
 			//Update the other clients position
-			socket->send(packet, clients[i]->GetIp(), clients[i]->GetPort());
+			m_socket->send(packet, clients[i]->GetIp(), clients[i]->GetPort());
 			break;
 		}	
 	}		
@@ -161,8 +161,8 @@ void Server::UpdateClientsPos(sf::Packet packet, ClientInfo info)
 
 void Server::InitServer()
 {
-	socket = new sf::UdpSocket();
-	socket->bind(27015);
+	m_socket = new sf::UdpSocket();
+	m_socket->bind(27015);
 }
 
 //Overload for paket with an vector2f

@@ -15,5 +15,4 @@ private:
 	bool destroy;
 	sf::Vector2f position;
 	sf::Vector2f direction;
-
 };

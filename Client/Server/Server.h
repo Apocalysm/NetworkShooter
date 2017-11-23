@@ -40,7 +40,7 @@ private:
 
 	std::vector<Client*> clients;
 	std::vector<Bullet*> bullets;
-	sf::UdpSocket* socket;
+	sf::UdpSocket* m_socket;
 	std::map<COMMAND,std::function<void(sf::Packet, ClientInfo)>> functionsMap;
 
 };

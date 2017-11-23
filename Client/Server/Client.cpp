@@ -3,7 +3,7 @@
 #include <SFML/Network/IpAddress.hpp>
 
 Client::Client(sf::IpAddress address, unsigned short port, int health) :
-	m_ip(address), m_hp(health), m_port(port)
+	m_ip(address), m_id(health), m_port(port)
 {
 	
 }
@@ -32,12 +32,22 @@ void Client::GetSpeed()
 {
 }
 
-sf::IpAddress Client::GetIp()
+const sf::IpAddress Client::GetIp() const
 {
 	return m_ip;
 }
 
-unsigned short Client::GetPort()
+const unsigned short Client::GetPort() const
 {
 	return m_port;
+}
+
+void Client::SetID(int newID)
+{
+	m_id = newID;
+}
+
+const int Client::GetID() const
+{
+	return m_id;
 }
