@@ -17,6 +17,7 @@ Server::Server() :
 	functionsMap.insert(commandPair(UPDATEPOS, std::bind(&Server::UpdateClientsPos, this, std::placeholders::_1, std::placeholders::_2)));
 	functionsMap.insert(commandPair(DISCONNECT, std::bind(&Server::Disconnect, this, std::placeholders::_1, std::placeholders::_2)));
 	functionsMap.insert(commandPair(BULLET, std::bind(&Server::CreateBullet, this, std::placeholders::_1, std::placeholders::_2)));
+	functionsMap.insert(commandPair(END, std::bind(&Server::GameEnd, this, std::placeholders::_1, std::placeholders::_2)));
 	//Creates the server
 	InitServer();
 }
@@ -166,11 +167,11 @@ void Server::UpdateClientsPos(sf::Packet packet, ClientInfo info)
 
 void Server::GameEnd(sf::Packet packet, ClientInfo info)
 {
-	int id;
-	packet << id;
+	int id = 0;
+	packet >> id;
 	for (size_t i = 0; i < m_clients_vector.size(); i++)
 	{
-		if (id == m_clients_vector[i]->GetID)
+		if (id == m_clients_vector[i]->GetID())
 		{
 			packet << LOSE;
 			m_socket->send(packet, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
