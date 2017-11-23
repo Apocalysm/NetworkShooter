@@ -15,14 +15,14 @@ Player::Player() :
 	m_player_shape->setRadius(16);
 	m_player_shape->setOrigin(m_player_shape->getRadius(), m_player_shape->getRadius());
 	m_player_shape->setFillColor(sf::Color::Blue);
-	//player_shape->setPosition(306, 306);
+	m_player_shape->setPosition(306, 306);
 
 	m_player_position = m_player_shape->getPosition();
 
 	m_enemy_shape->setRadius(16);
 	m_enemy_shape->setOrigin(m_enemy_shape->getRadius(), m_enemy_shape->getRadius());
 	m_enemy_shape->setFillColor(sf::Color::Red);
-	//enemy_shape->setPosition(612, 612);
+	m_enemy_shape->setPosition(612, 612);
 
 	Initialize();
 }
