@@ -26,6 +26,22 @@ Server::Server() :
 Server::~Server()
 {
 	delete m_socket;
+
+	//Delete all bullets from the vector.
+	for (auto it = m_bullets_vector.begin(); it != m_bullets_vector.end();)
+	{
+		delete(*it);
+		m_bullets_vector.erase(it);
+		it++;
+	}
+
+	//Delete all clients from the vector.
+	for (auto it = m_clients_vector.begin(); it != m_clients_vector.end();)
+	{
+		delete(*it);
+		m_clients_vector.erase(it);
+		it++;
+	}
 }
 
 //Update the server
@@ -35,26 +51,21 @@ void Server::Update()
 	{
 		for (auto it = m_bullets_vector.begin(); it != m_bullets_vector.end();)
 		{
+			//Delete the bullet if its outeside the game.
 			if ((*it)->GetDestroy() == true)
 			{
 				delete(*it);
 				m_bullets_vector.erase(it);
+				continue;
 			}
 			it++;
 		}
 
 		//Update every bullet position
-		/*for (size_t i = 0; i < bullets.size(); i++)
+		for (size_t i = 0; i < m_bullets_vector.size(); i++)
 		{
-			bullets[i]->Update();
-
-			for (size_t j = 0; j < clients.size(); j++)
-			{
-				sf::Packet packet;
-				packet << BULLETPOS << bullets[i]->GetPos();
-				m_socket->send(packet, clients[j]->GetIp(), clients[j]->GetPort());
-			}
-		}*/
+			m_bullets_vector[i]->Update();
+		}
 		
 		Receive();
 	}
@@ -75,22 +86,23 @@ void Server::Connect(sf::Packet pack, ClientInfo info)
 	}
 	//Add a new client to the game
 	int id;
-
+	sf::Vector2f Player1 = sf::Vector2f(150, 360);
+	sf::Vector2f Player2 = sf::Vector2f(1130, 360);
+	//Check if no one has join the server
 	if (m_clients_vector.size() < 1)
 	{
+		//Adds player one to the game
 		id = 1;
 		m_clients_vector.push_back(new Client(info.adress, info.port, id));
-		sf::Vector2f startPos = sf::Vector2f(150, 360);
-		packet << CONNECT << startPos << id;
+		packet << CONNECT << Player1 << Player2 << id;
 		m_socket->send(packet, info.adress, info.port);
 		return;
 	}
 
+	//Adds player two to the game
 	id = 2;
-
-	m_clients_vector.push_back(new Client(info.adress, info.port, id));
-	sf::Vector2f startPos = sf::Vector2f(1130, 360);
-	packet << CONNECT << startPos << id;
+	m_clients_vector.push_back(new Client(info.adress, info.port, id));	
+	packet << CONNECT << Player2 << Player1 << id;
 	m_socket->send(packet, info.adress, info.port);
 
 
@@ -132,7 +144,7 @@ void Server::Receive()
 
 }
 
-//Update for bulletPosition
+//Create a new bullet
 void Server::CreateBullet(sf::Packet packet, ClientInfo info)
 {
 	sf::Vector2f mousepos;
@@ -141,6 +153,7 @@ void Server::CreateBullet(sf::Packet packet, ClientInfo info)
 	m_bullets_vector.push_back(new Bullet(pos, mousepos));
 
 	packet << BULLET << info.id << mousepos << pos ;
+	//Send the position and the mouse position to the client.
 	for (size_t i = 0; i < m_clients_vector.size(); i++)
 		m_socket->send(packet, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
 }
@@ -173,11 +186,14 @@ void Server::GameEnd(sf::Packet packet, ClientInfo info)
 	for (size_t i = 0; i < m_clients_vector.size(); i++)
 	{
 		sf::Packet pac;
+		//If the id was the same as this client then it lost.
 		if (id == m_clients_vector[i]->GetID())
 		{
 			pac << LOSE;
 			m_socket->send(pac, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
 		}
+		
+		//Send to the winning client
 		else
 		{
 			pac << WIN;
