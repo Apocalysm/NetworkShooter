@@ -8,7 +8,7 @@
 #include "SFML\Network\IpAddress.hpp"
 #include "SFML\Graphics\CircleShape.hpp"
 
-enum COMMAND{CONNECT = 0, UPDATEPOS = 1, DISCONNECT = 2, BULLET = 3, SERVERFULL = 4, BULLETPOS = 5, WIN = 6, LOSE = 7};
+enum COMMAND{CONNECT = 0, UPDATEPOS = 1, DISCONNECT = 2, BULLET = 3, SERVERFULL = 4, BULLETPOS = 5, END = 6, WIN = 7, LOSE = 8};
 
 struct ClientInfo
 {
@@ -40,6 +40,7 @@ private:
 	void Receive();
 	void CreateBullet(sf::Packet packet, ClientInfo info);
 	void UpdateClientsPos(sf::Packet packet, ClientInfo info);
+	void GameEnd(sf::Packet, ClientInfo info);
 
 	std::vector<Client*> m_clients_vector;
 	std::vector<Bullet*> m_bullets_vector;
