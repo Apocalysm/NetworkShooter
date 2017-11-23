@@ -2,8 +2,6 @@
 #include "SFML\System\Vector2.hpp"
 #include "SFML\Network\IpAddress.hpp"
 
-
-
 class Client
 {
 public:
@@ -12,18 +10,19 @@ public:
 
 	void Update();
 
-	void SetPos(sf::Vector2f pos);
-	sf::Vector2f GetPos();
-	void GetSpeed();
-	const sf::IpAddress GetIp() const;
-	const unsigned short GetPort() const;
-	void SetID(int newID);
+	const sf::Vector2f& GetPos() const;
 	const int GetID() const;
+	void GetSpeed(); // void GetSpeed? really?
+	const sf::IpAddress& GetIp() const;
+	const unsigned short GetPort() const;
+
+	void SetPos(sf::Vector2f pos);
+	void SetID(int newID);
 
 private:
-
 	sf::Vector2f m_clientPos;
 	sf::IpAddress m_ip;
+
 	int m_id;
 	unsigned short m_port;
 };

@@ -29,23 +29,21 @@ public:
 	void Update();
 
 	void InitServer();
+
 private:
+	typedef std::pair<COMMAND, std::function<void(sf::Packet, ClientInfo)>> commandPair;
+	std::map<COMMAND, std::function<void(sf::Packet, ClientInfo)>> functionsMap;
+
 	void Connect(sf::Packet packet,ClientInfo info);
 	void Disconnect(sf::Packet packet, ClientInfo info);
 	void Receive();
 	void CreateBullet(sf::Packet packet, ClientInfo info);
 	void UpdateClientsPos(sf::Packet packet, ClientInfo info);
 
-	typedef std::pair<COMMAND, std::function<void(sf::Packet, ClientInfo)>> commandPair;
-
-	std::vector<Client*> clients;
-	std::vector<Bullet*> bullets;
+	std::vector<Client*> m_clients_vector;
+	std::vector<Bullet*> m_bullets_vector;
 	sf::UdpSocket* m_socket;
-	std::map<COMMAND,std::function<void(sf::Packet, ClientInfo)>> functionsMap;
-
 };
 
 sf::Packet& operator <<(sf::Packet& packet, sf::Vector2f& v);
 sf::Packet& operator >>(sf::Packet& packet, sf::Vector2f& v);
-
-

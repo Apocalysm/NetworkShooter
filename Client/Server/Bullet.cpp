@@ -2,7 +2,7 @@
 
 
 Bullet::Bullet(sf::Vector2f pos, sf::Vector2f dir) :
-	position(pos), direction(dir), destroy(false)
+	m_position(pos), m_direction(dir), m_destroy(false)
 {
 
 }
@@ -14,19 +14,19 @@ Bullet::~Bullet()
 
 void Bullet::Update()
 {
-	position.x += direction.x;
-	position.y += direction.y;
+	m_position.x += m_direction.x;
+	m_position.y += m_direction.y;
 
-	if (position.x > 1280 || position.x < 0 || position.y > 730 || position.y < 0)
-		destroy = true;
+	if (m_position.x > 1280 || m_position.x < 0 || m_position.y > 730 || m_position.y < 0)
+		m_destroy = true;
 }
 
-sf::Vector2f Bullet::GetPos()
+const sf::Vector2f& Bullet::GetPos() const
 {
-	return position;
+	return m_position;
 }
 
-bool Bullet::GetDestroy()
+const bool Bullet::GetDestroy() const
 {
-	return destroy;
+	return m_destroy;
 }

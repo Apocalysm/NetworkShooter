@@ -1,24 +1,24 @@
 #include "KeyboardHandler.h"
 
-bool* KeyboardHandler::keys = 0;
+bool* KeyboardHandler::m_keys = 0;
 
 void KeyboardHandler::Initialize()
 {
-	keys = new bool[sf::Keyboard::KeyCount];
+	m_keys = new bool[sf::Keyboard::KeyCount];
 	for (size_t i = 0; i < sf::Keyboard::KeyCount; i++)
 	{
-		keys[i] = false;
+		m_keys[i] = false;
 	}
 }
 
 void KeyboardHandler::setKeyDown(sf::Keyboard::Key key)
 {
-	keys[key] = true;
+	m_keys[key] = true;
 }
 
 bool KeyboardHandler::isKeyDown(sf::Keyboard::Key key)
 {
-	return keys[key];
+	return m_keys[key];
 }
 
 void KeyboardHandler::clearKeys()
@@ -29,6 +29,6 @@ void KeyboardHandler::clearKeys()
 		if (sf::Keyboard::isKeyPressed(key))
 			continue;
 
-		keys[i] = false;
+		m_keys[i] = false;
 	}
 }

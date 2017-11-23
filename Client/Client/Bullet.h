@@ -17,8 +17,8 @@ public:
 	void Move();
 
 private:
-	float speed;
+	float m_speed;
 
-	sf::Vector2f dir;
-	sf::RectangleShape bullet_shape;
+	sf::Vector2f m_dir;
+	sf::RectangleShape m_bullet_shape;
 };

@@ -15,6 +15,6 @@ public:
 	void Update();
 
 private:
-	sf::RenderWindow* window;
-	Player* player;
+	sf::RenderWindow* m_window;
+	Player* m_player;
 };

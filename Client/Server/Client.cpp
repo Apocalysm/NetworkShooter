@@ -23,7 +23,7 @@ void Client::SetPos(sf::Vector2f pos)
 }
 
 //Get the postion of the client
-sf::Vector2f Client::GetPos()
+const sf::Vector2f& Client::GetPos() const
 {
 	return m_clientPos;
 }
@@ -32,7 +32,7 @@ void Client::GetSpeed()
 {
 }
 
-const sf::IpAddress Client::GetIp() const
+const sf::IpAddress& Client::GetIp() const
 {
 	return m_ip;
 }

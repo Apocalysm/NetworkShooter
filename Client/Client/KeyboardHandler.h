@@ -11,5 +11,5 @@ public:
 	static void clearKeys();
 
 private:
-	static bool* keys;
+	static bool* m_keys;
 };

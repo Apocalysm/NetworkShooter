@@ -9,19 +9,19 @@
 #include "Player.h"
 
 Player::Player() :
-	player_shape(new sf::CircleShape), enemy_shape(new sf::CircleShape),
-	socket(new sf::UdpSocket), speed(0.03), server_port(27015), is_pressed(1)
+	m_player_shape(new sf::CircleShape), m_enemy_shape(new sf::CircleShape),
+	m_socket(new sf::UdpSocket), m_speed(0.03), m_server_port(27015), m_pressed(1)
 {
-	player_shape->setRadius(16);
-	player_shape->setOrigin(player_shape->getRadius(), player_shape->getRadius());
-	player_shape->setFillColor(sf::Color::Blue);
+	m_player_shape->setRadius(16);
+	m_player_shape->setOrigin(m_player_shape->getRadius(), m_player_shape->getRadius());
+	m_player_shape->setFillColor(sf::Color::Blue);
 	//player_shape->setPosition(306, 306);
 
-	player_position = player_shape->getPosition();
+	m_player_position = m_player_shape->getPosition();
 
-	enemy_shape->setRadius(16);
-	enemy_shape->setOrigin(enemy_shape->getRadius(), enemy_shape->getRadius());
-	enemy_shape->setFillColor(sf::Color::Red);
+	m_enemy_shape->setRadius(16);
+	m_enemy_shape->setOrigin(m_enemy_shape->getRadius(), m_enemy_shape->getRadius());
+	m_enemy_shape->setFillColor(sf::Color::Red);
 	//enemy_shape->setPosition(612, 612);
 
 	Initialize();
@@ -29,18 +29,18 @@ Player::Player() :
 
 void Player::Initialize()
 {
-	socket->bind(sf::Socket::AnyPort);
-	socket->setBlocking(false);
+	m_socket->bind(sf::Socket::AnyPort);
+	m_socket->setBlocking(false);
 	
 	//std::cout << "Please enter the IP-address of the server..." << std::endl;
 	//std::string ipAddress;
 	//std::getline(std::cin, ipAddress);
-	server_Adress = sf::IpAddress::getLocalAddress();
+	m_server_address = sf::IpAddress::getLocalAddress();
 
 	sf::Packet packet;
 	int command = CONNECT;
 	packet << command;
-	socket->send(packet, server_Adress, server_port);
+	m_socket->send(packet, m_server_address, m_server_port);
 }
 
 Player::~Player()
@@ -53,12 +53,12 @@ void Player::Update(sf::RenderWindow& window, sf::Event& rEvent)
 	Receive();
 	Input(rEvent);
 
-	mouse_pos = sf::Vector2f(sf::Mouse::getPosition(window));
-	if (bullets_vector.size() > 0)
+	m_mouse_position = sf::Vector2f(sf::Mouse::getPosition(window));
+	if (m_bullets_vector.size() > 0)
 	{
-		for (int i = 0; i < bullets_vector.size(); i++)
+		for (int i = 0; i < m_bullets_vector.size(); i++)
 		{
-			bullets_vector[i]->Move();
+			m_bullets_vector[i]->Move();
 		}
 	}
 
@@ -67,11 +67,11 @@ void Player::Update(sf::RenderWindow& window, sf::Event& rEvent)
 
 void Player::Draw(sf::RenderWindow& window)
 {
-	window.draw(*player_shape);
-	window.draw(*enemy_shape);
-	for (int i = 0; i < bullets_vector.size(); i++)
+	window.draw(*m_player_shape);
+	window.draw(*m_enemy_shape);
+	for (int i = 0; i < m_bullets_vector.size(); i++)
 	{
-		window.draw(bullets_vector[i]->GetShape());
+		window.draw(m_bullets_vector[i]->GetShape());
 	}	
 }
 
@@ -84,42 +84,42 @@ void Player::Input(sf::Event& rEvent)
 	if (KeyboardHandler::isKeyDown(sf::Keyboard::W))
 	{
 		Send();
-		movementVector.y -= speed;
+		movementVector.y -= m_speed;
 	}
 	if (KeyboardHandler::isKeyDown(sf::Keyboard::A))
 	{
 		Send();
-		movementVector.x -= speed;
+		movementVector.x -= m_speed;
 	}
 
 	if (KeyboardHandler::isKeyDown(sf::Keyboard::S))
 	{
 		Send();
-		movementVector.y += speed;
+		movementVector.y += m_speed;
 	}
 
 	if (KeyboardHandler::isKeyDown(sf::Keyboard::D))
 	{
 		Send();
-		movementVector.x += speed;
+		movementVector.x += m_speed;
 	}
 
-	player_shape->move(movementVector);
-	enemy_shape->setPosition(enemy_position);
+	m_player_shape->move(movementVector);
+	m_enemy_shape->setPosition(m_enemy_position);
 
-	player_position = player_shape->getPosition();
+	m_player_position = m_player_shape->getPosition();
 	
 	//------------------Shoot input----------------//
 	if (rEvent.mouseButton.button == sf::Mouse::Left)
 	{
-		if (rEvent.type == sf::Event::MouseButtonPressed && is_pressed == 1)
+		if (rEvent.type == sf::Event::MouseButtonPressed && m_pressed == 1)
 		{
-			is_pressed = 0; 
+			m_pressed = 0; 
 			CreateBullet();
 		}
-		else if (rEvent.type == sf::Event::MouseButtonReleased && is_pressed == 0)
+		else if (rEvent.type == sf::Event::MouseButtonReleased && m_pressed == 0)
 		{
-			is_pressed = 1;
+			m_pressed = 1;
 		}
 	}
 }
@@ -130,7 +130,7 @@ void Player::CloseWindow()
 	int command = DISCONNECT;
 	packet << command;
 
-	socket->send(packet, server_Adress, server_port);
+	m_socket->send(packet, m_server_address, m_server_port);
 }
 
 void Player::Receive()
@@ -141,25 +141,25 @@ void Player::Receive()
 	int command;
 
 
-	socket->receive(packet, senderIP, sender_port);
+	m_socket->receive(packet, senderIP, sender_port);
 	packet >> command;
 
 	if (command == CONNECT)
 	{
 		sf::Vector2f startPos;
 		packet >> startPos;
-		player_shape->setPosition(startPos);
+		m_player_shape->setPosition(startPos);
 	}
 
 	if(command == UPDATEPOS)
-		packet  >> enemy_position.x >> enemy_position.y;
+		packet  >> m_enemy_position.x >> m_enemy_position.y;
 
 	if (command == BULLETHIT)
 	{
 		sf::Vector2f pos;
 		sf::Vector2f mousepos;
 		packet >> mousepos >> pos;
-		bullets_vector.push_back(new Bullet(pos, mousepos));
+		m_bullets_vector.push_back(new Bullet(pos, mousepos));
 	}
 
 	if (command == SERVERFULL)
@@ -170,23 +170,23 @@ void Player::Send()
 {
 	sf::Packet packet;
 	int command = 1;
-	packet << command << player_position.x << player_position.y;
+	packet << command << m_player_position.x << m_player_position.y;
 	//std::cout << player_position.x << std::endl;
-	socket->send(packet, server_Adress, server_port);
+	m_socket->send(packet, m_server_address, m_server_port);
 }
 
 void Player::CreateBullet()
 {
 	sf::Packet packet;
 	int command = BULLETHIT;
-	packet << command << mouse_pos << player_shape->getPosition();
+	packet << command << m_mouse_position << m_player_shape->getPosition();
 
-	socket->send(packet, server_Adress, server_port);
+	m_socket->send(packet, m_server_address, m_server_port);
 }
 
 const sf::CircleShape* Player::GetShape() const
 {
-	return player_shape;
+	return m_player_shape;
 }
 
 //Overload for paket with an vector2f

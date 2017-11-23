@@ -6,7 +6,14 @@
 
 #include "Bullet.h"
 
-enum COMMAND { CONNECT = 0, UPDATEPOS = 1, DISCONNECT = 2, BULLETHIT = 3, SERVERFULL = 4 , BULLETPOS = 5};
+enum COMMAND { 
+	CONNECT = 0,
+	UPDATEPOS = 1,
+	DISCONNECT = 2,
+	BULLETHIT = 3,
+	SERVERFULL = 4,
+	BULLETPOS = 5
+};
 
 namespace sf
 {
@@ -38,19 +45,19 @@ private:
 
 	void CreateBullet();
 
-	std::vector<Bullet*> bullets_vector;
+	std::vector<Bullet*> m_bullets_vector;
 
-	sf::CircleShape* player_shape;
-	sf::CircleShape* enemy_shape;
-	sf::Vector2f mouse_pos; 
-	sf::UdpSocket* socket;
-	sf::IpAddress server_Adress;
+	sf::CircleShape* m_player_shape;
+	sf::CircleShape* m_enemy_shape;
+	sf::Vector2f m_mouse_position; 
+	sf::UdpSocket* m_socket;
+	sf::IpAddress m_server_address;
+	sf::Vector2f m_player_position;
+	sf::Vector2f m_enemy_position;
 
-	sf::Vector2f player_position;
-	sf::Vector2f enemy_position;
-	float speed;
-	int is_pressed;
-	unsigned short server_port;
+	float m_speed;
+	int m_pressed;
+	unsigned short m_server_port;
 };
 
 sf::Packet& operator <<(sf::Packet& packet, const sf::Vector2f& v);

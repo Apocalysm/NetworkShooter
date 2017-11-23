@@ -9,10 +9,12 @@ public:
 	~Bullet();
 
 	void Update();
-	sf::Vector2f GetPos();
-	bool GetDestroy();
+
+	const sf::Vector2f& GetPos() const;
+	const bool GetDestroy() const;
+
 private:
-	bool destroy;
-	sf::Vector2f position;
-	sf::Vector2f direction;
+	bool m_destroy;
+	sf::Vector2f m_position;
+	sf::Vector2f m_direction;
 };

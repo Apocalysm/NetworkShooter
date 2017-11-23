@@ -6,9 +6,9 @@
 #include "KeyboardHandler.h"
 
 Game::Game() :
-	window(new sf::RenderWindow), player(new Player)
+	m_window(new sf::RenderWindow), m_player(new Player)
 {
-	window->create(sf::VideoMode(1280, 720), "Shooter: Multiplayer");
+	m_window->create(sf::VideoMode(1280, 720), "Shooter: Multiplayer");
 	KeyboardHandler::Initialize();
 }
 
@@ -19,14 +19,14 @@ Game::~Game()
 void Game::Update()
 {
 	sf::Event event;
-	while (window->isOpen())
+	while (m_window->isOpen())
 	{	
-		while (window->pollEvent(event))
+		while (m_window->pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed)
 			{
-				player->CloseWindow();
-				window->close();
+				m_player->CloseWindow();
+				m_window->close();
 			}
 			else if (event.type == sf::Event::KeyPressed)
 			{
@@ -34,12 +34,12 @@ void Game::Update()
 			}
 		}
 
-		window->clear();
+		m_window->clear();
 
-		player->Update(*window, event);
+		m_player->Update(*m_window, event);
 		KeyboardHandler::clearKeys();
 
-		player->Draw(*window);
-		window->display();
+		m_player->Draw(*m_window);
+		m_window->display();
 	}
 }
