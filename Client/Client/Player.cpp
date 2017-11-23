@@ -60,6 +60,7 @@ void Player::Update(sf::RenderWindow& window, sf::Event& rEvent)
 		{
 			m_bullets_vector[i]->Move();
 		}
+		CheckBulletCollision();
 	}
 
 	//Send();
@@ -147,17 +148,16 @@ void Player::Receive()
 	if (command == CONNECT)
 	{
 		sf::Vector2f startPos;
-		packet >> startPos >> id;
+		packet >> startPos >> m_id;
 		m_player_shape->setPosition(startPos);
 
-		std::cout << id;
-
+		std::cout << m_id;
 	}
 
 	if(command == UPDATEPOS)
 		packet  >> m_enemy_position.x >> m_enemy_position.y;
 
-	if (command == BULLETHIT)
+	if (command == NEWBULLET)
 	{
 		sf::Vector2f pos;
 		sf::Vector2f mousepos;
@@ -182,10 +182,29 @@ void Player::Send()
 void Player::CreateBullet()
 {
 	sf::Packet packet;
-	int command = BULLETHIT;
-	packet << command << id << m_mouse_position << m_player_shape->getPosition() ;
+	int command = NEWBULLET;
+	packet << command << m_id << m_mouse_position << m_player_shape->getPosition() ;
 
 	m_socket->send(packet, m_server_address, m_server_port);
+}
+
+void Player::CheckBulletCollision()
+{
+	for (int i = 0; i < m_bullets_vector.size(); i++)
+	{
+		if (m_player_shape->getGlobalBounds().contains(m_bullets_vector[i]->GetShape().getPosition()))
+		{
+			if (m_id != m_bullets_vector[i]->Getid())
+			{
+				std::cout << "Hit by bullet" << std::endl;
+				sf::Packet packet;
+				int command = BULLETHIT;
+				packet << command << m_id;
+
+				m_socket->send(packet, m_server_address, m_server_port);
+			}
+		}
+	}
 }
 
 const sf::CircleShape* Player::GetShape() const

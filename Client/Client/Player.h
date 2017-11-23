@@ -10,9 +10,12 @@ enum COMMAND {
 	CONNECT = 0,
 	UPDATEPOS = 1,
 	DISCONNECT = 2,
-	BULLETHIT = 3,
+	NEWBULLET = 3,
 	SERVERFULL = 4,
-	BULLETPOS = 5
+	BULLETPOS = 5,
+	BULLETHIT = 6,
+	WIN = 7,
+	LOSE = 8
 };
 
 namespace sf
@@ -42,8 +45,8 @@ private:
 	void Initialize();
 	void Receive();
 	void Send();
-
 	void CreateBullet();
+	void CheckBulletCollision();
 
 	std::vector<Bullet*> m_bullets_vector;
 
@@ -58,7 +61,7 @@ private:
 	float m_speed;
 	int m_pressed;
 	unsigned short m_server_port;
-	int id;
+	int m_id;
 };
 
 sf::Packet& operator <<(sf::Packet& packet, const sf::Vector2f& v);
