@@ -167,19 +167,21 @@ void Server::UpdateClientsPos(sf::Packet packet, ClientInfo info)
 
 void Server::GameEnd(sf::Packet packet, ClientInfo info)
 {
+	
 	int id = 0;
 	packet >> id;
 	for (size_t i = 0; i < m_clients_vector.size(); i++)
 	{
+		sf::Packet pac;
 		if (id == m_clients_vector[i]->GetID())
 		{
-			packet << LOSE;
-			m_socket->send(packet, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
+			pac << LOSE;
+			m_socket->send(pac, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
 		}
 		else
 		{
-			packet << WIN;
-			m_socket->send(packet, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
+			pac << WIN;
+			m_socket->send(pac, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
 		}
 	}
 }

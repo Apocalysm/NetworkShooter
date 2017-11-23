@@ -57,11 +57,14 @@ private:
 	sf::IpAddress m_server_address;
 	sf::Vector2f m_player_position;
 	sf::Vector2f m_enemy_position;
+	sf::Text m_text;
+	sf::Font m_font;
 
 	float m_speed;
 	int m_pressed;
 	unsigned short m_server_port;
 	int m_id;
+	bool m_game_over;
 };
 
 sf::Packet& operator <<(sf::Packet& packet, const sf::Vector2f& v);

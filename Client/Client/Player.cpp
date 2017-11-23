@@ -10,7 +10,8 @@
 
 Player::Player() :
 	m_player_shape(new sf::CircleShape), m_enemy_shape(new sf::CircleShape),
-	m_socket(new sf::UdpSocket), m_speed(0.03), m_server_port(27015), m_pressed(1)
+	m_socket(new sf::UdpSocket), m_speed(0.03), m_server_port(27015), m_pressed(1),
+	m_game_over(false)
 {
 	m_player_shape->setRadius(16);
 	m_player_shape->setOrigin(m_player_shape->getRadius(), m_player_shape->getRadius());
@@ -24,6 +25,14 @@ Player::Player() :
 	m_enemy_shape->setFillColor(sf::Color::Red);
 	m_enemy_shape->setPosition(612, 612);
 
+	if (!m_font.loadFromFile("Sketch 3D.otf"))
+	{
+
+	}
+	m_text.setFont(m_font);
+	m_text.setFillColor(sf::Color::Red);
+	m_text.setCharacterSize(72);
+	m_text.setPosition(410, 270);
 	Initialize();
 }
 
@@ -73,7 +82,9 @@ void Player::Draw(sf::RenderWindow& window)
 	for (int i = 0; i < m_bullets_vector.size(); i++)
 	{
 		window.draw(m_bullets_vector[i]->GetShape());
-	}	
+	}
+	if (m_game_over == true)
+		window.draw(m_text);
 }
 
 // Input from player, such as movement
@@ -168,6 +179,17 @@ void Player::Receive()
 
 	if (command == SERVERFULL)
 		CloseWindow();
+
+	if (command == WIN)
+	{
+		m_text.setString("YOU WIN!!");
+		m_game_over = true;
+	}
+	if (command == LOSE)
+	{
+		m_text.setString("YOU LOSE!!");
+		m_game_over = true;
+	}
 }
 
 void Player::Send()
