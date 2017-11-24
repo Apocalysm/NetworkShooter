@@ -33,13 +33,14 @@ public:
 	Player();
 	~Player();
 		
-	void Update(sf::RenderWindow& window, sf::Event& rEvent);
+	void Update(sf::RenderWindow& window, sf::Event& sf_event);
 	void Draw(sf::RenderWindow& window);
 
-	void Input(sf::Event& rEvent);
-	void CloseWindow();
+	void Input(sf::Event& sf_event);
 
 	const sf::CircleShape* GetShape() const;
+
+	void CloseWindow();
 
 private:
 	void Initialize();

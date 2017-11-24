@@ -70,6 +70,11 @@ void Player::Update(sf::RenderWindow& window, sf::Event& rEvent)
 
 	for (auto it = m_bullets_vector.begin(); it != m_bullets_vector.end();)
 	{
+		if ((*it)->GetShape().getPosition().x < 0 || (*it)->GetShape().getPosition().x > 1280 ||
+			(*it)->GetShape().getPosition().y < 0 || (*it)->GetShape().getPosition().y > 720)
+		{
+			(*it)->SetDestroy(true);
+		}
 		//Delete the bullet if its outeside the game.
 		if ((*it)->GetDestroy() == true)
 		{
@@ -79,16 +84,13 @@ void Player::Update(sf::RenderWindow& window, sf::Event& rEvent)
 		}
 		it++;
 	}
-
-
-	//Send();
 }
 
 void Player::Draw(sf::RenderWindow& window)
 {
 	if (m_dead != true)
 		window.draw(*m_player_shape);
-	if(!m_won)
+	if (!m_won)
 		window.draw(*m_enemy_shape);
 	for (int i = 0; i < m_bullets_vector.size(); i++)
 	{
@@ -97,6 +99,7 @@ void Player::Draw(sf::RenderWindow& window)
 	if (m_game_over == true)
 		window.draw(m_text);
 }
+
 
 // Input from player, such as movement
 void Player::Input(sf::Event& rEvent)
@@ -154,15 +157,6 @@ void Player::Input(sf::Event& rEvent)
 	}
 
 	m_enemy_shape->setPosition(m_enemy_position);
-}
-
-void Player::CloseWindow()
-{
-	sf::Packet packet;
-	int command = DISCONNECT;
-	packet << command;
-
-	m_socket->send(packet, m_server_address, m_server_port);
 }
 
 void Player::Receive()
@@ -254,6 +248,15 @@ void Player::CheckBulletCollision()
 const sf::CircleShape* Player::GetShape() const
 {
 	return m_player_shape;
+}
+
+void Player::CloseWindow()
+{
+	sf::Packet packet;
+	int command = DISCONNECT;
+	packet << command;
+
+	m_socket->send(packet, m_server_address, m_server_port);
 }
 
 //Overload for paket with an vector2f
