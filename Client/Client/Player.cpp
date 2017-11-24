@@ -49,7 +49,7 @@ void Player::Initialize()
 			break;
 		std::cout << "Invalid character" << std::endl;
 	}
-	m_server_address = ipAddress;
+	m_server_address = sf::IpAddress::getLocalAddress();
 
 	sf::Packet packet;
 	int command = CONNECT;
@@ -217,6 +217,11 @@ void Player::Receive()
 		m_text.setString("YOU WIN!!");
 		m_game_over = true;
 		m_won = true;
+		for (size_t i = 0; i < m_bullets_vector.size(); i++)
+		{
+			if (m_bullets_vector[i]->Getid() != m_id)
+				m_bullets_vector[i]->SetDestroy(true);
+		}
 	}
 
 	if (command == LOSE)
@@ -224,6 +229,11 @@ void Player::Receive()
 		m_text.setString("YOU LOSE!!");
 		m_game_over = true;
 		m_dead = true;
+		for (size_t i = 0; i < m_bullets_vector.size(); i++)
+		{
+			if (m_bullets_vector[i]->Getid() == m_id)
+				m_bullets_vector[i]->SetDestroy(true);
+		}
 	}
 
 	if (command == WAITING)
