@@ -17,8 +17,6 @@ void Bullet::Update()
 	m_position.x += m_direction.x;
 	m_position.y += m_direction.y;
 
-	std::cout << m_position.x << std::endl;
-
 	if (m_position.x > 1280 || m_position.x < 0 || m_position.y > 730 || m_position.y < 0)
 		m_destroy = true;
 }
