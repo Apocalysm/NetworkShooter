@@ -6,6 +6,7 @@
 #include "SFML\Window.hpp"
 
 #include "KeyboardHandler.h"
+#include "Numeric.h"
 #include "Player.h"
 
 Player::Player() :
@@ -39,14 +40,21 @@ void Player::Initialize()
 	m_socket->bind(sf::Socket::AnyPort);
 	m_socket->setBlocking(false);
 	
-	//std::cout << "Please enter the IP-address of the server..." << std::endl;
-	//std::string ipAddress;
-	//std::getline(std::cin, ipAddress);
-	m_server_address = sf::IpAddress::getLocalAddress();
+	std::cout << "Please enter the IP-address of the server..." << std::endl;
+	std::string ipAddress;
+	while (true)
+	{
+		std::getline(std::cin, ipAddress);
+		if (Numeric::IsDigit(ipAddress.c_str(), sizeof(ipAddress)) == true)
+			break;
+		std::cout << "Invalid character" << std::endl;
+	}
+	m_server_address = ipAddress;
 
 	sf::Packet packet;
 	int command = CONNECT;
 	packet << command;
+
 	m_socket->send(packet, m_server_address, m_server_port);
 }
 
