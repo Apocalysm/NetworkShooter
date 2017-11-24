@@ -17,7 +17,10 @@ enum COMMAND{
 	BULLETPOS = 5,
 	END = 6,
 	WIN = 7,
-	LOSE = 8
+	LOSE = 8,
+	READY = 9,
+	WAITING = 10,
+	START = 11
 };
 
 struct ClientInfo
@@ -50,10 +53,12 @@ private:
 	void CreateBullet(sf::Packet packet, ClientInfo info);
 	void UpdateClientsPos(sf::Packet packet, ClientInfo info);
 	void GameEnd(sf::Packet, ClientInfo info);
+	void Ready(sf::Packet, ClientInfo info);
 
 	std::vector<Client*> m_clients_vector;
 	std::vector<Bullet*> m_bullets_vector;
 	sf::UdpSocket* m_socket;
+	int m_clientReady;
 };
 
 sf::Packet& operator <<(sf::Packet& packet, sf::Vector2f& v);

@@ -10,7 +10,7 @@
 
 
 Server::Server() : 
-	m_socket(new sf::UdpSocket) 
+	m_clientReady(0), m_socket(new sf::UdpSocket) 
 {
 	//Putting the functions in the vector
 	functionsMap.insert(commandPair(CONNECT, std::bind(&Server::Connect, this, std::placeholders::_1, std::placeholders::_2)));
@@ -18,6 +18,7 @@ Server::Server() :
 	functionsMap.insert(commandPair(DISCONNECT, std::bind(&Server::Disconnect, this, std::placeholders::_1, std::placeholders::_2)));
 	functionsMap.insert(commandPair(BULLET, std::bind(&Server::CreateBullet, this, std::placeholders::_1, std::placeholders::_2)));
 	functionsMap.insert(commandPair(END, std::bind(&Server::GameEnd, this, std::placeholders::_1, std::placeholders::_2)));
+	functionsMap.insert(commandPair(READY, std::bind(&Server::Ready, this, std::placeholders::_1, std::placeholders::_2)));
 	//Creates the server
 	InitServer();
 }
@@ -198,6 +199,34 @@ void Server::GameEnd(sf::Packet packet, ClientInfo info)
 		{
 			pac << WIN;
 			m_socket->send(pac, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
+		}
+	}
+}
+
+//Ready function for player
+void Server::Ready(sf::Packet packet, ClientInfo info)
+{
+	int id = 0;
+	sf::Packet pac;
+	packet >> id;
+	for (size_t i = 0; i < m_clients_vector.size(); i++)
+	{
+		if (id == m_clients_vector[i]->GetID())
+		{
+			m_clients_vector[i]->SetReady(true);
+			m_clientReady++;
+			if (m_clientReady != m_clients_vector.size())
+			{
+				pac << WAITING;
+				m_socket->send(pac, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
+				break;
+			}
+		}
+		if (m_clientReady >= m_clients_vector.size())
+		{
+			pac << START;
+			m_socket->send(pac, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
+			
 		}
 	}
 }
