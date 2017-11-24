@@ -68,6 +68,7 @@ private:
 	unsigned short m_server_port;
 	int m_id;
 	bool m_pressed;
+	bool m_key_pressed;
 	bool m_ready;
 	bool m_game_running;
 	bool m_game_over;

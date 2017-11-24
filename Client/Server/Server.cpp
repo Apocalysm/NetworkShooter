@@ -207,15 +207,17 @@ void Server::GameEnd(sf::Packet packet, ClientInfo info)
 void Server::Ready(sf::Packet packet, ClientInfo info)
 {
 	int id = 0;
-	sf::Packet pac;
+
 	packet >> id;
 	for (size_t i = 0; i < m_clients_vector.size(); i++)
 	{
+		sf::Packet pac;
 		if (id == m_clients_vector[i]->GetID())
 		{
 			m_clients_vector[i]->SetReady(true);
 			m_clientReady++;
-			if (m_clientReady != m_clients_vector.size())
+			std::cout << m_clientReady << std::endl;
+			if (m_clientReady < m_clients_vector.size())
 			{
 				pac << WAITING;
 				m_socket->send(pac, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
@@ -224,7 +226,7 @@ void Server::Ready(sf::Packet packet, ClientInfo info)
 		}
 		if (m_clientReady >= m_clients_vector.size())
 		{
-			pac << START;
+			pac << START << true;
 			m_socket->send(pac, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
 			
 		}

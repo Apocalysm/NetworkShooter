@@ -11,7 +11,8 @@
 Player::Player() :
 	m_player_shape(new sf::CircleShape), m_enemy_shape(new sf::CircleShape),
 	m_socket(new sf::UdpSocket), m_speed(0.03), m_server_port(27015), m_pressed(false),
-	m_game_over(false), m_dead(false), m_won(false), m_game_running(false), m_ready(false)
+	m_game_over(true), m_dead(false), m_won(false), m_game_running(false), m_ready(false),
+	m_key_pressed(false)
 {
 	m_player_shape->setRadius(16);
 	m_player_shape->setOrigin(m_player_shape->getRadius(), m_player_shape->getRadius());
@@ -29,7 +30,7 @@ Player::Player() :
 	m_text.setFillColor(sf::Color::Red);
 	m_text.setCharacterSize(72);
 	m_text.setPosition(410, 270);
-	m_text.setString("Waiting for players");
+	m_text.setString("Press R for ready");
 	Initialize();
 }
 
@@ -105,19 +106,19 @@ void Player::Draw(sf::RenderWindow& window)
 // Input from player, such as movement
 void Player::Input(sf::Event& rEvent)
 {
-	if (KeyboardHandler::isKeyDown(sf::Keyboard::R) && m_ready == false)
+	if (KeyboardHandler::isKeyDown(sf::Keyboard::R) && m_key_pressed == false)
 	{
 		sf::Packet packet;
 		int command = READY;
 		packet << command << m_id;
 		m_socket->send(packet, m_server_address, m_server_port);
 
-		m_ready = true;
+		m_key_pressed = true;
 	}
 
 	sf::Vector2f movementVector = sf::Vector2f(0, 0);
 	float radius = m_player_shape->getRadius();
-	if (!m_dead)
+	if (!m_dead && !m_game_over)
 	{
 		//--------------Movement input----------------//
 		if (KeyboardHandler::isKeyDown(sf::Keyboard::W))
@@ -219,14 +220,13 @@ void Player::Receive()
 
 	if (command == WAITING)
 	{
-		std::cout << "Waiting for other players" << std::endl;
+		m_text.setString("Waiting for players...");
 		m_game_over = true;
-		return;
 	}
 
-	if (command == READY)
+	if (command == START)
 	{
-		std::cout << "Starting game" << std::endl;
+		packet >> m_ready;
 		m_game_over = false;
 		m_game_running = true;
 	}
