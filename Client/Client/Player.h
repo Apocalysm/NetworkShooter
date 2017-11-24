@@ -6,7 +6,7 @@
 
 #include "Bullet.h"
 
-enum COMMAND { 
+enum COMMAND {
 	CONNECT = 0,
 	UPDATEPOS = 1,
 	DISCONNECT = 2,
@@ -15,7 +15,10 @@ enum COMMAND {
 	BULLETPOS = 5,
 	BULLETHIT = 6,
 	WIN = 7,
-	LOSE = 8
+	LOSE = 8,
+	READY = 9,
+	WAITING = 10,
+	START = 11
 };
 
 namespace sf
@@ -62,9 +65,11 @@ private:
 	sf::Font m_font;
 
 	float m_speed;
-	bool m_pressed;
 	unsigned short m_server_port;
 	int m_id;
+	bool m_pressed;
+	bool m_ready;
+	bool m_game_running;
 	bool m_game_over;
 	bool m_dead;
 	bool m_won;
