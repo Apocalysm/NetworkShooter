@@ -11,7 +11,7 @@
 Player::Player() :
 	m_player_shape(new sf::CircleShape), m_enemy_shape(new sf::CircleShape),
 	m_socket(new sf::UdpSocket), m_speed(0.03), m_server_port(27015), m_pressed(false),
-	m_game_over(false), m_dead(false), m_won(false)
+	m_game_over(false), m_dead(false), m_won(false), m_game_running(false)
 {
 	m_player_shape->setRadius(16);
 	m_player_shape->setOrigin(m_player_shape->getRadius(), m_player_shape->getRadius());
@@ -29,6 +29,7 @@ Player::Player() :
 	m_text.setFillColor(sf::Color::Red);
 	m_text.setCharacterSize(72);
 	m_text.setPosition(410, 270);
+	m_text.setString("Waiting for players");
 	Initialize();
 }
 
@@ -198,11 +199,26 @@ void Player::Receive()
 		m_game_over = true;
 		m_won = true;
 	}
+
 	if (command == LOSE)
 	{
 		m_text.setString("YOU LOSE!!");
 		m_game_over = true;
 		m_dead = true;
+	}
+
+	if (command == WAITING)
+	{
+		std::cout << "Waiting for other players" << std::endl;
+		m_game_over = true;
+		return;
+	}
+
+	if (command == READY)
+	{
+		std::cout << "Starting game" << std::endl;
+		m_game_over = false;
+		m_game_running = true;
 	}
 }
 
