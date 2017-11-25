@@ -1,5 +1,6 @@
-#include "Bullet.h"
 #include <iostream>
+
+#include "Bullet.h"
 
 Bullet::Bullet(sf::Vector2f pos, sf::Vector2f dir) :
 	m_position(pos), m_direction(dir), m_destroy(false)
@@ -7,10 +8,12 @@ Bullet::Bullet(sf::Vector2f pos, sf::Vector2f dir) :
 	std::cout << m_position.x << std::endl;
 }
 
+
 Bullet::~Bullet()
 {
 
 }
+
 
 void Bullet::Update()
 {
@@ -21,10 +24,12 @@ void Bullet::Update()
 		m_destroy = true;
 }
 
+
 const sf::Vector2f& Bullet::GetPos() const
 {
 	return m_position;
 }
+
 
 const bool Bullet::GetDestroy() const
 {

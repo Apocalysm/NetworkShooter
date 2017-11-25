@@ -1,16 +1,6 @@
 #include "Numeric.h"
 
-
-
-Numeric::Numeric()
-{
-}
-
-
-Numeric::~Numeric()
-{
-}
-
+// Checks if the recieved string is using acceptable characters for an ip-address
 bool Numeric::IsDigit(const char* data, std::size_t size)
 {
 	for (std::size_t i = 0; i < size; i++)

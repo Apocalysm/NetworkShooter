@@ -1,9 +1,9 @@
-#include "Client.h"
-
 #include <SFML/Network/IpAddress.hpp>
 
-Client::Client(sf::IpAddress address, unsigned short port, int health) :
-	m_ip(address), m_id(health), m_port(port), m_ready(false)
+#include "Client.h"
+
+Client::Client(sf::IpAddress address, unsigned short port, int id) :
+	m_ip(address), m_id(id), m_port(port), m_ready(false)
 {
 	
 }
@@ -11,18 +11,19 @@ Client::Client(sf::IpAddress address, unsigned short port, int health) :
 
 Client::~Client()
 {
+
 }
 
 
-void Client::SetPos(sf::Vector2f pos)
-{
-	m_clientPos = pos;
-}
-
-//Get the postion of the client
 const sf::Vector2f& Client::GetPos() const
 {
-	return m_clientPos;
+	return m_client_pos;
+}
+
+
+const int Client::GetId() const
+{
+	return m_id;
 }
 
 
@@ -31,27 +32,32 @@ const sf::IpAddress& Client::GetIp() const
 	return m_ip;
 }
 
+
 const unsigned short Client::GetPort() const
 {
 	return m_port;
 }
+
 
 const bool Client::GetReady() const
 {
 	return m_ready;
 }
 
-void Client::SetID(int newID)
+
+void Client::SetPos(sf::Vector2f position)
 {
-	m_id = newID;
+	m_client_pos = position;
 }
 
-void Client::SetReady(bool ready)
+
+void Client::SetId(int new_id)
 {
-	m_ready = ready;
+	m_id = new_id;
 }
 
-const int Client::GetID() const
+
+void Client::SetReady(bool state)
 {
-	return m_id;
+	m_ready = state;
 }

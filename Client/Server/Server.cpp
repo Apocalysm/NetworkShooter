@@ -1,25 +1,23 @@
 #include <string>
 #include <iostream>
+
 #include "SFML\Network\UdpSocket.hpp"
 
 #include "Bullet.h"
 #include "Server.h"
 #include "Client.h"
-#include "SFML\System\Vector2.hpp"
-
-
 
 Server::Server() : 
 	m_clientReady(0), m_socket(new sf::UdpSocket) 
 {
-	//Putting the functions in the vector
-	functionsMap.insert(commandPair(CONNECT, std::bind(&Server::Connect, this, std::placeholders::_1, std::placeholders::_2)));
-	functionsMap.insert(commandPair(UPDATEPOS, std::bind(&Server::UpdateClientsPos, this, std::placeholders::_1, std::placeholders::_2)));
-	functionsMap.insert(commandPair(DISCONNECT, std::bind(&Server::Disconnect, this, std::placeholders::_1, std::placeholders::_2)));
-	functionsMap.insert(commandPair(BULLET, std::bind(&Server::CreateBullet, this, std::placeholders::_1, std::placeholders::_2)));
-	functionsMap.insert(commandPair(END, std::bind(&Server::GameEnd, this, std::placeholders::_1, std::placeholders::_2)));
-	functionsMap.insert(commandPair(READY, std::bind(&Server::Ready, this, std::placeholders::_1, std::placeholders::_2)));
-	//Creates the server
+	// Inserts functions into a function std::map
+	functions_map.insert(CommandPair(CONNECT, std::bind(&Server::Connect, this, std::placeholders::_1, std::placeholders::_2)));
+	functions_map.insert(CommandPair(UPDATEPOS, std::bind(&Server::UpdateClientsPos, this, std::placeholders::_1, std::placeholders::_2)));
+	functions_map.insert(CommandPair(DISCONNECT, std::bind(&Server::Disconnect, this, std::placeholders::_1, std::placeholders::_2)));
+	functions_map.insert(CommandPair(NEWBULLET, std::bind(&Server::CreateBullet, this, std::placeholders::_1, std::placeholders::_2)));
+	functions_map.insert(CommandPair(END, std::bind(&Server::GameEnd, this, std::placeholders::_1, std::placeholders::_2)));
+	functions_map.insert(CommandPair(READY, std::bind(&Server::Ready, this, std::placeholders::_1, std::placeholders::_2)));
+	
 	InitServer();
 }
 
@@ -44,6 +42,7 @@ Server::~Server()
 		it++;
 	}
 }
+
 
 //Update the server
 void Server::Update()
@@ -72,50 +71,58 @@ void Server::Update()
 	}
 }
 
-//Lets the client connect to the server
-void Server::Connect(sf::Packet pack, ClientInfo info)
+
+void Server::InitServer()
+{
+	m_socket = new sf::UdpSocket();
+	m_socket->bind(27015);
+}
+
+
+// This runs when a client is trying to connect to the server
+void Server::Connect(sf::Packet pac, ClientInfo info)
 {
 	sf::Packet packet;
 
-	//Check if 2 clients is allready connected
+	// Checks if 2 clients are already connected
 	if (m_clients_vector.size() >= 2)
 	{
 		packet << SERVERFULL << "The server is full!";
 
-		m_socket->send(packet, info.adress, info.port);
+		m_socket->send(packet, info.address, info.port);
 		return;
 	}
-	//Add a new client to the game
+
 	int id;
 	sf::Vector2f Player1 = sf::Vector2f(150, 360);
 	sf::Vector2f Player2 = sf::Vector2f(1130, 360);
-	//Check if no one has join the server
+
+	// Checks if no clients have connected to the server
 	if (m_clients_vector.size() < 1)
 	{
-		//Adds player one to the game
+		// Adds player one to the game
 		id = 1;
-		m_clients_vector.push_back(new Client(info.adress, info.port, id));
+		m_clients_vector.push_back(new Client(info.address, info.port, id));
 		packet << CONNECT << Player1 << Player2 << id;
-		m_socket->send(packet, info.adress, info.port);
+		m_socket->send(packet, info.address, info.port);
 		return;
 	}
 
-	//Adds player two to the game
+	// Adds player two to the game
 	id = 2;
-	m_clients_vector.push_back(new Client(info.adress, info.port, id));	
+	m_clients_vector.push_back(new Client(info.address, info.port, id));	
 	packet << CONNECT << Player2 << Player1 << id;
-	m_socket->send(packet, info.adress, info.port);
-
-
+	m_socket->send(packet, info.address, info.port);
 }
 
-//Disconnect from the server
-void Server::Disconnect(sf::Packet packet, ClientInfo info)
+
+// This runs when a client is trying to disconnect from the server
+void Server::Disconnect(sf::Packet pac, ClientInfo info)
 {
 	for (auto it = m_clients_vector.begin(); it != m_clients_vector.end();)
 	{
 		//Check if we have the right client
-		if ((*it)->GetIp() == info.adress && (*it)->GetPort() == info.port)
+		if ((*it)->GetIp() == info.address && (*it)->GetPort() == info.port)
 		{
 			//Delete the client from the vector
 			delete (*it);
@@ -126,7 +133,8 @@ void Server::Disconnect(sf::Packet packet, ClientInfo info)
 	}
 }
 
-//Receive from the client
+
+// Receive from the clients
 void Server::Receive()
 {
 	sf::Packet packet;
@@ -135,40 +143,40 @@ void Server::Receive()
 	int command = 0;
 
 	//Getting the data from the Client
-	m_socket->receive(packet, info.adress, info.port);
+	m_socket->receive(packet, info.address, info.port);
 	//Getting which command
 	packet >> command;
 	COMMAND cd = static_cast<COMMAND>(command);
 
 	//Calls the function
-	functionsMap[cd](packet, info);
-
+	functions_map[cd](packet, info);
 }
 
-//Create a new bullet
-void Server::CreateBullet(sf::Packet packet, ClientInfo info)
+
+void Server::CreateBullet(sf::Packet pac, ClientInfo info)
 {
 	sf::Vector2f mousepos;
 	sf::Vector2f pos;
-	packet >> info.id >> mousepos >> pos;
+	pac >> info.id >> mousepos >> pos;
 	m_bullets_vector.push_back(new Bullet(pos, mousepos));
 
-	packet << BULLET << info.id << mousepos << pos ;
+	pac << NEWBULLET << info.id << mousepos << pos ;
 	//Send the position and the mouse position to the client.
 	for (size_t i = 0; i < m_clients_vector.size(); i++)
-		m_socket->send(packet, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
+		m_socket->send(pac, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
 }
 
+
 //Update the players positions
-void Server::UpdateClientsPos(sf::Packet packet, ClientInfo info)
+void Server::UpdateClientsPos(sf::Packet pac, ClientInfo info)
 {
 	sf::Vector2f pos;
 	//Gets the positon
-	packet >> pos;
+	pac >> pos;
 	for (int i = 0; i < m_clients_vector.size(); i++)
 	{
 		//Checking for the right client
-		if (info.port != m_clients_vector[i]->GetPort() || info.adress !=m_clients_vector[i]->GetIp())
+		if (info.port != m_clients_vector[i]->GetPort() || info.address !=m_clients_vector[i]->GetIp())
 		{
 			sf::Packet packet;
 			packet << UPDATEPOS << pos.x << pos.y;
@@ -179,40 +187,42 @@ void Server::UpdateClientsPos(sf::Packet packet, ClientInfo info)
 	}		
 }
 
-void Server::GameEnd(sf::Packet packet, ClientInfo info)
+
+void Server::GameEnd(sf::Packet pac, ClientInfo info)
 {
-	
 	int id = 0;
-	packet >> id;
+	pac >> id;
 	for (size_t i = 0; i < m_clients_vector.size(); i++)
 	{
-		sf::Packet pac;
-		//If the id was the same as this client then it lost.
-		if (id == m_clients_vector[i]->GetID())
+		sf::Packet packet;
+
+		// If the id was the same as this client then it lost.
+		if (id == m_clients_vector[i]->GetId())
 		{
-			pac << LOSE;
-			m_socket->send(pac, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
+			packet << LOSE;
+			m_socket->send(packet, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
 		}
-		
-		//Send to the winning client
+		// Send to the winning client
 		else
 		{
-			pac << WIN;
-			m_socket->send(pac, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
+			packet << WIN;
+			m_socket->send(packet, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
 		}
 	}
 }
 
+
 //Ready function for player
-void Server::Ready(sf::Packet packet, ClientInfo info)
+void Server::Ready(sf::Packet pac, ClientInfo info)
 {
 	int id = 0;
-	sf::Packet pac;
-	packet >> id;
+	sf::Packet packet;
+	pac >> id;
+
 	for (size_t i = 0; i < m_clients_vector.size(); i++)
 	{
 		//Set Client to ready
-		if (id == m_clients_vector[i]->GetID())
+		if (id == m_clients_vector[i]->GetId())
 		{
 			m_clients_vector[i]->SetReady(true);
 			m_clientReady++;
@@ -220,37 +230,33 @@ void Server::Ready(sf::Packet packet, ClientInfo info)
 			//Check if the other client is not ready
 			if (m_clientReady < m_clients_vector.size() || m_clientReady <= 1)
 			{
-				pac << WAITING;
-				m_socket->send(pac, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
+				packet << WAITING;
+				m_socket->send(packet, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
 				return;
 			}
 		}
 	}
+
 	//Check if all clients is ready
 	if (m_clientReady >= m_clients_vector.size() && m_clientReady >= 1)
 	{
 		for (size_t i = 0; i < m_clients_vector.size(); i++)
 		{
-
-			pac << START << true;
-			m_socket->send(pac, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
-
+			packet << START << true;
+			m_socket->send(packet, m_clients_vector[i]->GetIp(), m_clients_vector[i]->GetPort());
 		}
 	}
 }
 
-void Server::InitServer()
-{
-	m_socket = new sf::UdpSocket();
-	m_socket->bind(27015);
-}
 
-//Overload for paket with an vector2f
+// Overload for pacet with an vector2f
 sf::Packet& operator <<(sf::Packet& packet, sf::Vector2f& v)
 {
 	return packet << v.x << v.y;
 }
 
+
+// Overload for pacet with an vector2f
 sf::Packet& operator >>(sf::Packet& packet, sf::Vector2f& v)
 {
 	return packet >> v.x >> v.y;

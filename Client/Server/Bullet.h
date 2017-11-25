@@ -15,6 +15,7 @@ public:
 
 private:
 	bool m_destroy;
+
 	sf::Vector2f m_position;
 	sf::Vector2f m_direction;
 };

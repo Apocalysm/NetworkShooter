@@ -11,7 +11,7 @@
 
 Player::Player() :
 	m_player_shape(new sf::CircleShape), m_enemy_shape(new sf::CircleShape),
-	m_socket(new sf::UdpSocket), m_speed(0.03), m_server_port(27015), m_pressed(false),
+	m_socket(new sf::UdpSocket), m_speed(0.1), m_server_port(27015), m_pressed(false),
 	m_game_over(true), m_dead(false), m_won(false), m_game_running(false), m_ready(false),
 	m_key_pressed(false)
 {
@@ -23,46 +23,24 @@ Player::Player() :
 	m_enemy_shape->setOrigin(m_enemy_shape->getRadius(), m_enemy_shape->getRadius());
 	m_enemy_shape->setFillColor(sf::Color::Red);
 
-	if (!m_font.loadFromFile("Sketch_3D.otf"))
-	{
+	if (!m_font.loadFromFile("Sketch_3D.otf")){}
 
-	}
 	m_text.setFont(m_font);
 	m_text.setFillColor(sf::Color::Red);
 	m_text.setCharacterSize(72);
-	m_text.setPosition(410, 270);
 	m_text.setString("Press R for ready");
+	m_text.setOrigin(m_text.getLocalBounds().width / 2, m_text.getLocalBounds().height / 2);
+	m_text.setPosition(640, 360);
+	
 	Initialize();
 }
 
-void Player::Initialize()
-{
-	m_socket->bind(sf::Socket::AnyPort);
-	m_socket->setBlocking(false);
-	
-	std::cout << "Please enter the IP-address of the server..." << std::endl;
-	std::string ipAddress;
-	while (true)
-	{
-		std::getline(std::cin, ipAddress);
-		if (Numeric::IsDigit(ipAddress.c_str(), sizeof(ipAddress)) == true)
-			break;
-		std::cout << "Invalid character" << std::endl;
-	}
-	m_server_address = sf::IpAddress::getLocalAddress();
-
-	sf::Packet packet;
-	int command = CONNECT;
-	packet << command;
-
-	m_socket->send(packet, m_server_address, m_server_port);
-}
 
 Player::~Player()
 {
 }
 
-// Update for player
+
 void Player::Update(sf::RenderWindow& window, sf::Event& rEvent)
 {
 	Receive();
@@ -85,7 +63,8 @@ void Player::Update(sf::RenderWindow& window, sf::Event& rEvent)
 		{
 			(*it)->SetDestroy(true);
 		}
-		//Delete the bullet if its outeside the game.
+
+		// Delete the bullet if it's state is destroy
 		if ((*it)->GetDestroy() == true)
 		{
 			delete(*it);
@@ -95,6 +74,7 @@ void Player::Update(sf::RenderWindow& window, sf::Event& rEvent)
 		it++;
 	}
 }
+
 
 void Player::Draw(sf::RenderWindow& window)
 {
@@ -111,9 +91,10 @@ void Player::Draw(sf::RenderWindow& window)
 }
 
 
-// Input from player, such as movement
+// Input from player
 void Player::Input(sf::Event& rEvent)
 {
+	// If player isn't ready and presses R, then inform server that client is ready
 	if (KeyboardHandler::isKeyDown(sf::Keyboard::R) && m_key_pressed == false)
 	{
 		sf::Packet packet;
@@ -131,24 +112,24 @@ void Player::Input(sf::Event& rEvent)
 		//--------------Movement input----------------//
 		if (KeyboardHandler::isKeyDown(sf::Keyboard::W))
 		{
-			Send();
+			SendPosition();
 			movementVector.y -= m_speed;
 		}
 		if (KeyboardHandler::isKeyDown(sf::Keyboard::A))
 		{
-			Send();
+			SendPosition();
 			movementVector.x -= m_speed;
 		}
 
 		if (KeyboardHandler::isKeyDown(sf::Keyboard::S))
 		{
-			Send();
+			SendPosition();
 			movementVector.y += m_speed;
 		}
 
 		if (KeyboardHandler::isKeyDown(sf::Keyboard::D))
 		{
-			Send();
+			SendPosition();
 			movementVector.x += m_speed;
 		}
 
@@ -179,6 +160,47 @@ void Player::Input(sf::Event& rEvent)
 	m_enemy_shape->setPosition(m_enemy_position);
 }
 
+// Tells the server that the client has disconnected before exiting the application
+void Player::CloseWindow()
+{
+	sf::Packet packet;
+	int command = DISCONNECT;
+	packet << command;
+
+	m_socket->send(packet, m_server_address, m_server_port);
+}
+
+
+const sf::CircleShape* Player::GetShape() const
+{
+	return m_player_shape;
+}
+
+
+void Player::Initialize()
+{
+	m_socket->bind(sf::Socket::AnyPort);
+	m_socket->setBlocking(false);
+
+	std::cout << "Please enter the ip-address of the server..." << std::endl;
+	std::string ip_address;
+	while (true)
+	{
+		std::getline(std::cin, ip_address);
+		if (Numeric::IsDigit(ip_address.c_str(), sizeof(ip_address)) == true)
+			break;
+		std::cout << "Invalid character" << std::endl;
+	}
+	m_server_address = ip_address;
+
+	sf::Packet packet;
+	int command = CONNECT;
+	packet << command;
+
+	m_socket->send(packet, m_server_address, m_server_port);
+}
+
+
 void Player::Receive()
 {
 	sf::Packet packet;
@@ -203,10 +225,10 @@ void Player::Receive()
 	if (command == NEWBULLET)
 	{
 		sf::Vector2f pos;
-		sf::Vector2f mousepos;
+		sf::Vector2f mouse_pos;
 		int owner_id;
-		packet >> owner_id >> mousepos >> pos;
-		m_bullets_vector.push_back(new Bullet(pos, mousepos, owner_id));
+		packet >> owner_id >> mouse_pos >> pos;
+		m_bullets_vector.push_back(new Bullet(pos, mouse_pos, owner_id));
 	}
 
 	if (command == SERVERFULL)
@@ -214,24 +236,28 @@ void Player::Receive()
 
 	if (command == WIN)
 	{
-		m_text.setString("YOU WIN!!");
+		m_text.setString("YOU WON!!");
+		m_text.setOrigin(m_text.getLocalBounds().width / 2, m_text.getLocalBounds().height / 2);
+		m_text.setPosition(640, 360);
 		m_game_over = true;
 		m_won = true;
 		for (size_t i = 0; i < m_bullets_vector.size(); i++)
 		{
-			if (m_bullets_vector[i]->Getid() != m_id)
+			if (m_bullets_vector[i]->GetId() != m_id)
 				m_bullets_vector[i]->SetDestroy(true);
 		}
 	}
 
 	if (command == LOSE)
 	{
-		m_text.setString("YOU LOSE!!");
+		m_text.setString("YOU LOST!!");
+		m_text.setOrigin(m_text.getLocalBounds().width / 2, m_text.getLocalBounds().height / 2);
+		m_text.setPosition(640, 360);
 		m_game_over = true;
 		m_dead = true;
 		for (size_t i = 0; i < m_bullets_vector.size(); i++)
 		{
-			if (m_bullets_vector[i]->Getid() == m_id)
+			if (m_bullets_vector[i]->GetId() == m_id)
 				m_bullets_vector[i]->SetDestroy(true);
 		}
 	}
@@ -239,6 +265,8 @@ void Player::Receive()
 	if (command == WAITING)
 	{
 		m_text.setString("Waiting for players...");
+		m_text.setOrigin(m_text.getLocalBounds().width / 2, m_text.getLocalBounds().height / 2);
+		m_text.setPosition(640, 360);
 		m_game_over = true;
 	}
 
@@ -250,14 +278,15 @@ void Player::Receive()
 	}
 }
 
-void Player::Send()
+
+void Player::SendPosition()
 {
 	sf::Packet packet;
 	int command = 1;
 	packet << command << m_player_position.x << m_player_position.y;
-	//std::cout << player_position.x << std::endl;
 	m_socket->send(packet, m_server_address, m_server_port);
 }
+
 
 void Player::CreateBullet()
 {
@@ -268,46 +297,34 @@ void Player::CreateBullet()
 	m_socket->send(packet, m_server_address, m_server_port);
 }
 
+
 void Player::CheckBulletCollision()
 {
 	for (int i = 0; i < m_bullets_vector.size(); i++)
 	{
 		if (m_player_shape->getGlobalBounds().contains(m_bullets_vector[i]->GetShape().getPosition()))
 		{
-			if (m_id != m_bullets_vector[i]->Getid())
+			if (m_id != m_bullets_vector[i]->GetId())
 			{
-				m_bullets_vector[i]->SetDestroy(true);
-
-				std::cout << "Hit by bullet" << std::endl;
 				sf::Packet packet;
 				int command = BULLETHIT;
 				packet << command << m_id;
 
 				m_socket->send(packet, m_server_address, m_server_port);
+
+				m_bullets_vector[i]->SetDestroy(true);
 			}
 		}
 	}
 }
 
-const sf::CircleShape* Player::GetShape() const
-{
-	return m_player_shape;
-}
-
-void Player::CloseWindow()
-{
-	sf::Packet packet;
-	int command = DISCONNECT;
-	packet << command;
-
-	m_socket->send(packet, m_server_address, m_server_port);
-}
 
 //Overload for paket with an vector2f
 sf::Packet& operator <<(sf::Packet& packet, const sf::Vector2f& v)
 {
 	return packet << v.x << v.y;
 }
+
 
 sf::Packet& operator >>(sf::Packet& packet, sf::Vector2f& v)
 {

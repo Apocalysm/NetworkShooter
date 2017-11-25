@@ -9,21 +9,21 @@ namespace sf
 class Bullet
 {
 public:
-	Bullet(sf::Vector2f& position, sf::Vector2f& mouse_pos, int Owner_ID);
+	Bullet(sf::Vector2f& position, sf::Vector2f& mouse_pos, int owner_id);
 	~Bullet();
+
+	void Move();
 
 	const sf::RectangleShape& GetShape() const;
 	const sf::Vector2f& GetDir() const;
-	const int Getid() const;
+	const int GetId() const;
+	const bool GetDestroy() const;
 
-	const bool GetDestroy();
-	void SetDestroy(bool);
-	void Move();
+	void SetDestroy(bool status);
 
 private:
 	float m_speed;
-	int m_ownerid;
-
+	int m_owner;
 	bool m_destroy;
 
 	sf::Vector2f m_dir;

@@ -38,17 +38,15 @@ public:
 		
 	void Update(sf::RenderWindow& window, sf::Event& sf_event);
 	void Draw(sf::RenderWindow& window);
-
 	void Input(sf::Event& sf_event);
+	void CloseWindow();
 
 	const sf::CircleShape* GetShape() const;
-
-	void CloseWindow();
 
 private:
 	void Initialize();
 	void Receive();
-	void Send();
+	void SendPosition();
 	void CreateBullet();
 	void CheckBulletCollision();
 
@@ -56,9 +54,9 @@ private:
 
 	sf::CircleShape* m_player_shape;
 	sf::CircleShape* m_enemy_shape;
-	sf::Vector2f m_mouse_position; 
 	sf::UdpSocket* m_socket;
 	sf::IpAddress m_server_address;
+	sf::Vector2f m_mouse_position;
 	sf::Vector2f m_player_position;
 	sf::Vector2f m_enemy_position;
 	sf::Text m_text;
