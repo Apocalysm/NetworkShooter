@@ -71,7 +71,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>..\..\SFML-2.4.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\SFML-2.4.2\lib;$(LibraryPath)</LibraryPath>
-    <TargetName>$(ProjectName)-debug</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>..\..\SFML-2.4.2\include;$(IncludePath)</IncludePath>
